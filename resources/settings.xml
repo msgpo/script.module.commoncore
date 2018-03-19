@@ -1,7 +1,7 @@
 <settings>
-	<category label="Dillinger Common">
-		<setting label="Dillinger Common" type="text" enable="false"/>
-		<setting label="Provides shared modules by Ed Dillinger" type="text" enable="false"/>
+	<category label="CommonCore">
+		<setting label="CommonCore" type="text" enable="false"/>
+		<setting label="Provides shared modules by EdDillinger" type="text" enable="false"/>
 		<setting type="sep"/>
 		<setting label="Go to http://www.tvaddons.co for support." type="lsep" />
 	</category>
