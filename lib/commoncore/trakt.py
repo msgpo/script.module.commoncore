@@ -20,7 +20,7 @@ import json
 import urllib
 import traceback
 from datetime import datetime
-from dillinger.common import kodi
+from commoncore import kodi
 
 ERROR_CODES = {
 	400:	"Bad Request - request couldn't be parsed",
@@ -71,7 +71,7 @@ def to_slug(username):
 DB_TYPE = 'MySQL' if kodi.get_setting('database_type') == '1' else 'SQLite'
 
 if DB_TYPE == 'MySQL':
-	from dillinger.common.baseapi import MYSQL_CACHABLE_API, EXPIRE_TIMES
+	from commoncore.baseapi import MYSQL_CACHABLE_API, EXPIRE_TIMES
 	class BASE_TraktAPI(MYSQL_CACHABLE_API):
 		custom_tables = [
 			"""CREATE TABLE IF NOT EXISTS `trakt_activities` (
@@ -113,7 +113,7 @@ if DB_TYPE == 'MySQL':
 		]
 
 else:
-	from dillinger.common.baseapi import DB_CACHABLE_API, EXPIRE_TIMES
+	from commoncore.baseapi import DB_CACHABLE_API, EXPIRE_TIMES
 	class BASE_TraktAPI(DB_CACHABLE_API):
 		custom_tables = [
 			"""CREATE TABLE IF NOT EXISTS "trakt_activities" (
@@ -157,8 +157,8 @@ else:
 
 class TraktAPI(BASE_TraktAPI):
 	default_return_type = 'json'
-	timeout = kodi.get_setting('trakt_timeout', addon_id='script.module.dillinger.common') if kodi.get_setting('trakt_timeout', addon_id='script.module.dillinger.common') else 5
-	base_url = '%s://%s' % (kodi.get_setting('trakt_protocol', addon_id='script.module.dillinger.common'), kodi.get_setting('trakt_base_url', addon_id='script.module.dillinger.common'))
+	timeout = kodi.get_setting('trakt_timeout', addon_id='script.module.commoncore') if kodi.get_setting('trakt_timeout', addon_id='script.module.commoncore') else 5
+	base_url = '%s://%s' % (kodi.get_setting('trakt_protocol', addon_id='script.module.commoncore'), kodi.get_setting('trakt_base_url', addon_id='script.module.commoncore'))
 	headers = {'Content-Type': 'application/json', 'trakt-api-key': CLIENT_ID, 'trakt-api-version': '2'}
 	def authorize(self):
 		self.headers.update({'Authorization': 'Bearer %s' % (AUTH_TOKEN)})

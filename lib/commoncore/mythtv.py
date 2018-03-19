@@ -18,7 +18,7 @@
 import re
 import json
 import requests
-from dillinger.common import kodi
+from commoncore import kodi
 
 vfs = kodi.vfs
 try:

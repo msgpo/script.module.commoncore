@@ -17,8 +17,8 @@
 
 import urllib
 import traceback
-from dillinger.common import kodi
-from dillinger.common.baseapi import DB_CACHABLE_API as BASE_API, EXPIRE_TIMES
+from commoncore import kodi
+from commoncore.baseapi import DB_CACHABLE_API as BASE_API, EXPIRE_TIMES
 
 try:
 	_username = kodi.get_setting('premiumize_username', 'script.module.scrapecore')

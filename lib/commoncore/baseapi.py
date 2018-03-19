@@ -23,10 +23,10 @@ import zlib
 import requests
 import traceback
 from sqlite3 import dbapi2 as database
-from dillinger.common import kodi
-from dillinger.common.enum import enum
-from dillinger.common.filelock import FileLock
-from dillinger.common.BeautifulSoup import BeautifulSoup
+from commoncore import kodi
+from commoncore.enum import enum
+from commoncore.filelock import FileLock
+from commoncore.BeautifulSoup import BeautifulSoup
 
 	
 vfs = kodi.vfs

@@ -18,10 +18,10 @@
 import urllib
 import traceback
 import requests
-from dillinger.common import kodi
-from dillinger.common.baseapi import DB_CACHABLE_API as BASE_API, EXPIRE_TIMES
+from commoncore import kodi
+from commoncore.baseapi import DB_CACHABLE_API as BASE_API, EXPIRE_TIMES
 
-CLIENT_ID = 'MUQMIQX6YWDSU'
+CLIENT_ID = 'X245A4XAIBGVM'
 class RealDebrid_API(BASE_API):
 	base_url = 'https://api.real-debrid.com/rest/1.0'
 	default_return_type = 'json'

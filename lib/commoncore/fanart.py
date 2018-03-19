@@ -17,7 +17,7 @@
 
 import re
 import urllib
-from dillinger.common import kodi
+from commoncore import kodi
 
 ADDON_ID = 'service.fanart.proxy'
 TMDB_KEY = kodi.get_setting('tmdb_api_key', ADDON_ID)
@@ -28,25 +28,6 @@ OIMDB_KEY =  kodi.get_setting('oimdb_api_key', ADDON_ID)
 
 class FanartException(Exception):
 	pass
-
-if not TMDB_KEY:
-	xml = kodi.vfs.read_file(kodi.vfs.join("special://home", "addons/metadata.common.themoviedb.org/tmdb.xml"))
-	match = re.search("api_key=([^&]+)&", xml)
-	if match:
-		TMDB_KEY = match.group(1)
-		kodi.set_setting('tmdb_api_key', TMDB_KEY, ADDON_ID)
-if not TVDB_KEY:
-	xml = kodi.vfs.read_file(kodi.vfs.join("special://home", "addons/metadata.tvdb.com/tvdb.xml"))
-	match = re.search("apikey&quot;:&quot;([^&]+)&", xml)
-	if match:
-		TVDB_KEY = match.group(1)
-		kodi.set_setting('tvdb_api_key', TVDB_KEY, ADDON_ID)
-if not FANART_KEY:
-	xml = kodi.vfs.read_file(kodi.vfs.join("special://home", "addons/metadata.common.fanart.tv/fanarttv.xml"))
-	match = re.search("api_key=([^&]+)&", xml)
-	if match:
-		FANART_KEY = match.group(1)
-		kodi.set_setting('fanart_api_key', FANART_KEY, ADDON_ID)
 
 def set_art(results, media, url):
 	if not results[media]:
@@ -60,7 +41,7 @@ def set_complete(result):
 
 DB_TYPE = 'MySQL' if kodi.get_setting('database_type') == '1' else 'SQLite'
 if DB_TYPE == 'MySQL':
-	from dillinger.common.baseapi import MYSQL_CACHABLE_API, EXPIRE_TIMES
+	from commoncore.baseapi import MYSQL_CACHABLE_API, EXPIRE_TIMES
 	class BASE_FANART_API(MYSQL_CACHABLE_API):
 		default_return_type = 'json'
 		headers = {"User-Agent": 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.99 Safari/535.1', "Content-Type": "application/json"}
@@ -95,7 +76,7 @@ if DB_TYPE == 'MySQL':
 			pass
 		
 else:
-	from dillinger.common.baseapi import DB_CACHABLE_API, EXPIRE_TIMES
+	from commoncore.baseapi import DB_CACHABLE_API, EXPIRE_TIMES
 	class BASE_FANART_API(DB_CACHABLE_API):
 		default_return_type = 'json'
 		headers = {"User-Agent": 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.99 Safari/535.1', "Content-Type": "application/json"}
@@ -475,8 +456,8 @@ def get_person_art(tmdb_id):
 def get_art(media, id, id_type='trakt_id', season=None, episode=None):
 	k = id_type.replace("_id", "")
 	import json
-	from dillinger.common import trakt
-	from dillinger.common.dispatcher import dispatcher
+	from commoncore import trakt
+	from commoncore.dispatcher import dispatcher
 	DB = BASE_FANART_API()
 	try:
 

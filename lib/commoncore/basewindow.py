@@ -16,7 +16,7 @@
 *'''
 
 import xbmcgui
-from dillinger.common.enum import enum
+from commoncore.enum import enum
 
 WINDOW_ACTIONS = enum(
 	ACTION_PREVIOUS_MENU = 10,

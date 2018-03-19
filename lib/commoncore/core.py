@@ -28,10 +28,10 @@ def execute_api(namespace, api):
 		if 'kwargs' not in api or api['kwargs'] is None: kwargs = {}
 		else: kwargs = api['kwargs']
 		if api['name'] == 'premiumize':
-			from dillinger.common import premiumize
+			from commoncore import premiumize
 			namespace = locals()
 		elif api['name'] == 'trakt':
-			from dillinger.common import trakt
+			from commoncore import trakt
 			namespace = locals()
 		return getattr(namespace[api['name']], api['method'])(*args, **kwargs)
 	except Exception, e:
