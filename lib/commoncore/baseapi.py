@@ -31,7 +31,7 @@ from commoncore.BeautifulSoup import BeautifulSoup
 	
 vfs = kodi.vfs
 CACHE = vfs.join(kodi.get_profile(), 'API_CACHE')
-if not vfs.exists(CACHE): vfs.mkdir(CACHE)
+if not vfs.exists(CACHE): vfs.mkdir(CACHE, True)
 
 TYPES = enum(TEXT=unicode, STR=type(''), UTF8=type(u''), DICT=type({}), RESPONSE=requests.models.Response)
 EXPIRE_TIMES = enum(FLUSH=-2, NEVER=-1, FIFTEENMIN=.25, THIRTYMIN=.5, HOUR=1, FOURHOURS=4, EIGHTHOURS=8, TWELVEHOURS=12, DAY=24, THREEDAYS=72, WEEK=168)
