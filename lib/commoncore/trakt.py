@@ -58,7 +58,7 @@ CLIENT_ID = "d4161a7a106424551add171e5470112e4afdaf2438e6ef2fe0548edc75924868"
 try:
 	AUTH_TOKEN = json.loads(kodi.get_setting('authorization', 'script.trakt'))['access_token']
 except:
-	raise TraktException("Addon: script.trakt required.")
+	AUTH_TOKEN = '' #raise TraktException("Addon: script.trakt required.")
 
 
 def to_slug(username):
@@ -198,6 +198,13 @@ else:
 	trakt = TraktAPI()
 
 """ Core Functions """
+
+def is_authorized():
+	try:
+		auth = kodi.get_setting('authorization', 'script.trakt') != ''
+	except:
+		auth = False
+	return auth
 
 def call(uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=5, cache_limit=0):
 	return trakt.request(uri, query=query, data=data, append_base=append_base, headers=headers, auth=auth, method=method, timeout=timeout, cache_limit=cache_limit)

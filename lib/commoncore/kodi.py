@@ -109,6 +109,9 @@ def exit():
 def get_addon(addon_id):
 	return xbmcaddon.Addon(addon_id)
 
+def has_addon(addon_id):
+	return get_condition_visiblity("System.HasAddon(%s)" % addon_id)==1
+
 def get_window(id=10000):
 	return xbmcgui.Window(id)
 
