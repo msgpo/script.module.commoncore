@@ -31,7 +31,7 @@ from commoncore.BeautifulSoup import BeautifulSoup
 	
 vfs = kodi.vfs
 CACHE = vfs.join(kodi.get_profile(), 'API_CACHE')
-if not vfs.exists(CACHE): vfs.mkdir(CACHE)
+if not vfs.exists(CACHE): vfs.mkdir(CACHE, True)
 
 TYPES = enum(TEXT=unicode, STR=type(''), UTF8=type(u''), DICT=type({}), RESPONSE=requests.models.Response)
 EXPIRE_TIMES = enum(FLUSH=-2, NEVER=-1, FIFTEENMIN=.25, THIRTYMIN=.5, HOUR=1, FOURHOURS=4, EIGHTHOURS=8, TWELVEHOURS=12, DAY=24, THREEDAYS=72, WEEK=168)
@@ -138,10 +138,10 @@ class BASE_API():
 		traceback.print_stack()
 		raise error
 	
-	def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None):
+	def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None, encode_data=True):
 		self.prepair_query(query)
 		request_args = (uri,)
-		request_kwargs = {"query": query, "data": data, "append_base": append_base, "headers": headers, "auth": auth, "method": method, "timeout": timeout}
+		request_kwargs = {"query": query, "data": data, "append_base": append_base, "headers": headers, "auth": auth, "method": method, "timeout": timeout, "encode_data": encode_data}
 		self.set_user_agent(headers)
 		if auth is not None:
 			self.authorize()
@@ -155,10 +155,11 @@ class BASE_API():
 				else:
 					response = self.requests.get(url, headers=self.headers, timeout=timeout)
 			else:
+				if encode_data: data = json.dumps(data)
 				if method == 'PUT':
 					response = self.requests.put(url, data=json.dumps(data), headers=self.headers, timeout=timeout)
 				else:
-					response = self.requests.post(url, data=json.dumps(data), headers=self.headers, timeout=timeout)
+					response = self.requests.post(url, data=data, headers=self.headers, timeout=timeout)
 		except (requests.exceptions.Timeout, requests.exceptions.ConnectionError, requests.exceptions.TooManyRedirects) as e:
 			response = None
 			self.handel_error(connectionException(e), response, request_args, request_kwargs)
@@ -194,10 +195,10 @@ class CACHABLE_API(BASE_API):
 			vfs.write_file(cache_file, zlib.compress(response))
 			vfs.write_file(cache_file+'.ts', str(cache_limit))
 	
-	def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None, cache_limit=0):
+	def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None, encode_data=True, cache_limit=0):
 		query = self.prepair_query(query)
 		request_args = (uri,)
-		request_kwargs = {"query": query, "data": data, "append_base": append_base, "headers": headers, "auth": auth, "method": method, "timeout": timeout, "cache_limit": cache_limit}
+		request_kwargs = {"query": query, "data": data, "append_base": append_base, "headers": headers, "auth": auth, "method": method, "timeout": timeout, "cache_limit": cache_limit, "encode_data": encode_data}
 		self.set_user_agent(headers)
 		if auth is not None:
 			self.authorize()
@@ -212,15 +213,17 @@ class CACHABLE_API(BASE_API):
 					response = self.requests.delete(url, headers=self.headers, timeout=timeout)
 				else:
 					response = self.requests.get(url, headers=self.headers, timeout=timeout)
+				kodi.log(response.text)
 			else:
+				if encode_data: data = json.dumps(data)
 				if method == 'PUT':
-					response = self.requests.put(url, data=json.dumps(data), headers=self.headers, timeout=timeout)
+					response = self.requests.put(url, data=data, headers=self.headers, timeout=timeout)
 				else:
-					response = self.requests.post(url, data=json.dumps(data), headers=self.headers, timeout=timeout)
+					response = self.requests.post(url, data=data, headers=self.headers, timeout=timeout)
 		except (requests.exceptions.Timeout, requests.exceptions.ConnectionError, requests.exceptions.TooManyRedirects) as e:
-			response = None
 			self.handel_error(connectionException(e), response, request_args, request_kwargs)
 		if response.status_code == requests.codes.ok or response.status_code == 201:
+			
 			return self.process_response( url, response, cache_limit, request_args, request_kwargs)
 		else:
 			return self.handel_error(responseException(response.status_code), response, request_args, request_kwargs)

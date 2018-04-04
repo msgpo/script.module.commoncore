@@ -87,9 +87,12 @@ PremiumizeV2 = PremiumizeAPI_V2()
 
 def get_hosts(full=False):
 	uri = '/pm-api/v1.php'
-	response = PremiumizeV1.request(uri, query={'method': 'hosterlist'}, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
-	if full: return response
-	else: return [h for h in response['result']['hosters']]
+	try:
+		response = PremiumizeV1.request(uri, query={'method': 'hosterlist'}, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
+		if full: return response
+		else: return [h for h in response['result']['hosters']]
+	except:
+		return []
 
 
 def get_account():

@@ -14,12 +14,14 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *'''
-
+import re
 import urllib
 import traceback
 import requests
 from commoncore import kodi
 from commoncore.baseapi import DB_CACHABLE_API as BASE_API, EXPIRE_TIMES
+from commoncore.enum import enum
+from commoncore.basewindow import BaseWindow
 
 CLIENT_ID = 'X245A4XAIBGVM'
 class RealDebrid_API(BASE_API):
@@ -43,33 +45,46 @@ RD = RealDebrid_API()
 session = requests.Session()
 
 def authorize():
-	PB = kodi.ProgressBar()
-	PB.new("Authorize RealDebrid: https://real-debrid.com/device", 600)
-	response = request_code()
-	device_code = response['device_code']
-	user_code = response['user_code']
-	timeout = response['expires_in']
-	PB.update_subheading("Enter Code: %s" % user_code, "%s sec(s)" % 600)
-	
-	for tick in range(600, 0,-1):
-		if PB.is_canceled(): return
-		percent =  int((tick / 600.0) * 100)
-		PB.update_subheading("Enter Code: %s" % user_code, "%s sec(s) remaining" % tick, percent=percent)
-		if (tick % 5) == 0:
-			r = poll_credentials(device_code)
-			if r:
-				client_id = r['client_id']
-				client_secret = r['client_secret']
-				token = request_token(client_id, client_secret, device_code)
-				kodi.set_setting('realdebrid_client_id', client_id, addon_id='script.module.scrapecore')
-				kodi.set_setting('realdebrid_client_secret', client_secret, addon_id='script.module.scrapecore')
-				kodi.set_setting('realdebrid_token', token['access_token'], addon_id='script.module.scrapecore')
-				kodi.set_setting('realdebrid_refresh_token', token['refresh_token'], addon_id='script.module.scrapecore')
-				PB.close()
-				kodi.notify("RealDebrid Authorization", "Success!")
-				return
+	CONTROLS = enum(CLOSE=92000, CODE=91050, PROGRESS=91051)
+	class Authorize(BaseWindow):
+		_abort = False
+		return_val = False
+		
+		def onInit(self):
+			response = request_code()
+			self.device_code = response['device_code']
+			self.user_code = response['user_code']
+			self.timeout = int(response['expires_in'])
+			self.getControl(CONTROLS.CODE).setLabel(self.user_code)
+			for tick in range(self.timeout, 0,-1):
+				if tick == 0 or self._abort: break
+				width = (float(tick) / self.timeout) * 600
+				self.getControl(CONTROLS.PROGRESS).setWidth(int(width))
+				if (tick % 5) == 0:
+					r = poll_credentials(self.device_code)
+					if r:
+						client_id = r['client_id']
+						client_secret = r['client_secret']
+						token = request_token(client_id, client_secret, self.device_code)
+						kodi.set_setting('realdebrid_client_id', client_id, addon_id='script.module.scrapecore')
+						kodi.set_setting('realdebrid_client_secret', client_secret, addon_id='script.module.scrapecore')
+						kodi.set_setting('realdebrid_token', token['access_token'], addon_id='script.module.scrapecore')
+						kodi.set_setting('realdebrid_refresh_token', token['refresh_token'], addon_id='script.module.scrapecore')
+						kodi.notify("RealDebrid Authorization", "Success!")
+						self._close()
+						return
+				kodi.sleep(1000)
+			self.close()
 
-		kodi.sleep(1000)
+		def onClick(self, controlID):
+			if controlID == CONTROLS.CLOSE: self._close()
+
+		def _close(self):
+			self._abort = True
+			self.close()
+		
+	A = Authorize("auth_realdebrid.xml", kodi.get_path())
+	A.show()
 
 def poll_credentials(device_code):
 	try:	
@@ -117,11 +132,53 @@ def verify_link(link):
 	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
 	return response
 
+def check_hashes(hashes):
+	uri = '/torrents/instantAvailability/' + '/'.join(hashes)
+	response = RD.request(uri, auth=True, cache_limit=EXPIRE_TIMES.HOUR)
+	return response
+
+def get_torrent_info(torrent_id):
+	uri = '/torrents/info/' + torrent_id
+	response = RD.request(uri, auth=True)
+	return response
+
+def add_torrent(source):
+	if source[0:6] == 'magnet':
+		return add_magnet_url(source)
+	else:
+		return add_torrent_url(source)
+	
+def add_magnet_url(magnet_url):
+	uri = '/torrents/addMagnet'
+	post_data = {'magnet': magnet_url, 'host': 'real-debrid.com'}
+	return RD.request(uri, data=post_data, auth=True, encode_data=False)
+
+def add_torrent_url(torrent_url):
+	pass
+
+def get_stream_file(files):
+	id = False
+	files.sort(reverse=True, key=lambda k: k['bytes'])
+	re_ext = re.compile("(flv)|(avi)|(mpg)|(mpeg)|(mp4)|(mkv)$")
+	for f in files:
+		if re_ext.search(f['path'], re.IGNORECASE):
+			return f['id']
+	return id
+
+def select_torrent_files(torrent_id, file_ids):
+	uri = '/torrents/selectFiles/' + torrent_id
+	kodi.log(uri)
+	if type(file_ids) is list:
+		files = ','.join(file_ids)
+	else:
+		files = file_ids
+	RD.request(uri, data={"files": str(files)}, auth=True, encode_data=False)
+
 def resolve_url(link):
 	resolved_url = ''
 	uri = '/unrestrict/link'
 	post_data= {'link': link}
-	response = RD.request(uri, data=post_data, auth=True)
+	response = RD.request(uri, data=post_data, auth=True, encode_data=False)
 
 	if response and 'download' in response:
 		return response['download']
