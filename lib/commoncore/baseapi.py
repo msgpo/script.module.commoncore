@@ -161,8 +161,7 @@ class BASE_API():
 				else:
 					response = self.requests.post(url, data=data, headers=self.headers, timeout=timeout)
 		except (requests.exceptions.Timeout, requests.exceptions.ConnectionError, requests.exceptions.TooManyRedirects) as e:
-			response = None
-			self.handel_error(connectionException(e), response, request_args, request_kwargs)
+			self.handel_error(connectionException(e), None, request_args, request_kwargs)
 		if response.status_code == requests.codes.ok or response.status_code == 201:
 			return self.process_response(response)
 		else:
@@ -213,7 +212,6 @@ class CACHABLE_API(BASE_API):
 					response = self.requests.delete(url, headers=self.headers, timeout=timeout)
 				else:
 					response = self.requests.get(url, headers=self.headers, timeout=timeout)
-				kodi.log(response.text)
 			else:
 				if encode_data: data = json.dumps(data)
 				if method == 'PUT':
@@ -221,9 +219,8 @@ class CACHABLE_API(BASE_API):
 				else:
 					response = self.requests.post(url, data=data, headers=self.headers, timeout=timeout)
 		except (requests.exceptions.Timeout, requests.exceptions.ConnectionError, requests.exceptions.TooManyRedirects) as e:
-			self.handel_error(connectionException(e), response, request_args, request_kwargs)
+			self.handel_error(connectionException(e), None, request_args, request_kwargs)
 		if response.status_code == requests.codes.ok or response.status_code == 201:
-			
 			return self.process_response( url, response, cache_limit, request_args, request_kwargs)
 		else:
 			return self.handel_error(responseException(response.status_code), response, request_args, request_kwargs)

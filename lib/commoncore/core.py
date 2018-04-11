@@ -54,10 +54,10 @@ def format_size(num, suffix='B', split=False):
 	for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
 		if abs(num) < 1024.0:
 			if split: return num, unit, suffix
-			return "%3.1f%s%s" % (num, unit, suffix)
+			return "%3.1f %s%s" % (num, unit, suffix)
 		num /= 1024.0
 	if split: return num, unit, suffix
-	return "%.1f%s%s" % (num, 'Y', suffix)
+	return "%.1f %s%s" % (num, 'Y', suffix)
 
 def format_time(seconds):
 	seconds = int(seconds)
