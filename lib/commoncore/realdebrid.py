@@ -58,7 +58,7 @@ def authorize():
 			self.getControl(CONTROLS.CODE).setLabel(self.user_code)
 			for tick in range(self.timeout, 0,-1):
 				if tick == 0 or self._abort: break
-				width = (float(tick) / self.timeout) * 600
+				width = (float(tick) / self.timeout) * 596
 				self.getControl(CONTROLS.PROGRESS).setWidth(int(width))
 				if (tick % 5) == 0:
 					r = poll_credentials(self.device_code)
@@ -83,7 +83,7 @@ def authorize():
 			self._abort = True
 			self.close()
 		
-	A = Authorize("auth_realdebrid.xml", kodi.get_path())
+	A = Authorize("auth_realdebrid.xml", kodi.get_addon('script.module.scrapecore').getAddonInfo('path').decode('utf-8'))
 	A.show()
 
 def poll_credentials(device_code):

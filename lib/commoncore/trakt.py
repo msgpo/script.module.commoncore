@@ -201,7 +201,7 @@ else:
 
 def is_authorized():
 	try:
-		auth = kodi.get_setting('authorization', 'script.trakt') != ''
+		auth = AUTH_TOKEN != ''
 	except:
 		auth = False
 	return auth
