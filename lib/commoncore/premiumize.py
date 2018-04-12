@@ -149,6 +149,10 @@ def folder_info(id):
 def upload():
 	pass
 
+def item_details(id):
+	uri = '/api/item/details'
+	return PremiumizeV2.request(uri, query={"id": id})
+
 def delete_item(id):
 	uri = '/api/item/delete'
 	return PremiumizeV2.request(uri, query={"id": id})
