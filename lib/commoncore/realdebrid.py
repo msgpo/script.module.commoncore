@@ -134,7 +134,7 @@ def verify_link(link):
 
 def check_hashes(hashes):
 	uri = '/torrents/instantAvailability/' + '/'.join(hashes)
-	response = RD.request(uri, auth=True, cache_limit=EXPIRE_TIMES.HOUR)
+	response = RD.request(uri, auth=True)
 	return response
 
 def get_torrent_info(torrent_id):
