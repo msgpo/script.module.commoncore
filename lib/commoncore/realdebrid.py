@@ -29,7 +29,7 @@ class RealDebrid_API(BASE_API):
 	default_return_type = 'json'
 	headers = {}
 	attemp = 0
-	timeout = 10
+	timeout = 5
 	def authorize(self):
 		self.headers = {"Authorization": "Bearer %s" % kodi.get_setting('realdebrid_token', addon_id='script.module.scrapecore')}
 
@@ -167,7 +167,6 @@ def get_stream_file(files):
 
 def select_torrent_files(torrent_id, file_ids):
 	uri = '/torrents/selectFiles/' + torrent_id
-	kodi.log(uri)
 	if type(file_ids) is list:
 		files = ','.join(file_ids)
 	else:
@@ -179,7 +178,6 @@ def resolve_url(link):
 	uri = '/unrestrict/link'
 	post_data= {'link': link}
 	response = RD.request(uri, data=post_data, auth=True, encode_data=False)
-
 	if response and 'download' in response:
 		return response['download']
 	else: 

@@ -451,19 +451,27 @@ def play_stream(url, metadata={"poster": "", "title": "", "resume_point": ""}):
 	else:
 		resume_point = ''
 		
-	set_property('playing', "true", 'service.fanart.proxy')
+	set_property('core.playing', "true", 'service.core.playback')
 	if resume_point:
 		listitem.setProperty('totaltime', '999999')
 		listitem.setProperty('resumetime', str(resume_point))
-		set_property("playback.resume", str(resume_point), 'service.fanart.proxy')
 	if HANDLE_ID > -1:
 		xbmcplugin.setResolvedUrl(HANDLE_ID, True, listitem)
 	else:
 		xbmc.Player().play(url, listitem)
-	while get_property('playing', 'service.fanart.proxy'):
+	while get_property('core.playing', 'service.core.playback'):
 		sleep(100)
 	on_playback_stop()
 
+def get_playback_times():
+	try:
+		percent = int(get_property('percent', 'service.core.playback'))
+		current_time = get_property('current_time', 'service.core.playback')
+		total_time = get_property('total_time', 'service.core.playback')
+		return current_time, total_time, percent
+	except:
+		return 0,0,0
+	
 def check_resume_point(resume_point):
 	from core import format_time
 	set_point = False
