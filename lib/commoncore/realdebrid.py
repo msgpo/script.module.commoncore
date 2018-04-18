@@ -39,10 +39,15 @@ class RealDebrid_API(BASE_API):
 			self.attempt = 1
 			refresh_token()
 			return self.request(*request_args, **request_kwargs)
+		else:
+			kodi.log(response.status_code)
+			kodi.log(response.text)
 			
 	
 RD = RealDebrid_API()
 session = requests.Session()
+
+### Authorization ###
 
 def authorize():
 	CONTROLS = enum(CLOSE=92000, CODE=91050, PROGRESS=91051)
@@ -120,16 +125,59 @@ def refresh_token():
 		kodi.set_setting('realdebrid_token', response['access_token'], addon_id='script.module.scrapecore')
 	return response		
 
+### Hosts ###
+
 def get_hosts(full=False):
 	uri = '/hosts'
 	results = RD.request(uri, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
 	if full: return results
 	else: return [h for h in results][1:-1]
+list_hosts = get_hosts
 
-def verify_link(link):
-	uri = '/unrestrict/check'
-	post_data= {'link': link}
-	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
+def get_domains():
+	uri = '/hosts/domains'
+	response = RD.request(uri, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
+	return response
+list_domains = get_domains
+
+def host_status():
+	uri = '/hosts/status'
+	response = RD.request(uri, auth=True, cache_limit=EXPIRE_TIMES.FOURHOURS)
+	return response
+
+def host_regex():
+	uri = '/hosts/regex'
+	response = RD.request(uri, auth=True, cache_limit=EXPIRE_TIMES.FOURHOURS)
+	return response
+
+### Traffic ###
+
+def get_traffic_limits():
+	uri = '/traffic'
+	response = RD.request(uri, auth=True, cache_limit=EXPIRE_TIMES.FOURHOURS)
+	return response
+
+def get_usage():
+	uri = '/traffic/info'
+	response = RD.request(uri, auth=True, cache_limit=EXPIRE_TIMES.HOUR)
+	return response
+
+### Downloads ###
+
+def list_downloads(page=1):
+	uri = '/downloads'
+	response = RD.request(uri, query={"page": page}, auth=True)
+	return response
+
+def delete_download(id):
+	uri = '/downloads/delete/%s' % id
+	RD.request(uri, auth=True, method='DELETE')
+
+### Torrents ###
+
+def list_torrents():
+	uri = '/torrents'
+	response = RD.request(uri, auth=True)
 	return response
 
 def check_hashes(hashes):
@@ -154,7 +202,18 @@ def add_magnet_url(magnet_url):
 	return RD.request(uri, data=post_data, auth=True, encode_data=False)
 
 def add_torrent_url(torrent_url):
-	pass
+	uri = '/torrents/addTorrent'
+	response = requests.get(torrent_url, stream=True)
+	if response.status_code == requests.codes.ok or response.status_code == 201:
+		data = b''
+		for block in response.iter_content(chunk_size=8096):
+			if not block: break
+			data += block
+		RD.request(uri, query={'host': 'real-debrid.com'}, data=data, auth=True, method='PUT')
+
+def delete_torrent(id):
+	uri = '/torrents/delete/%s' % id
+	RD.request(uri, auth=True, method='DELETE')
 
 def get_stream_file(files):
 	id = False
@@ -173,6 +232,14 @@ def select_torrent_files(torrent_id, file_ids):
 		files = file_ids
 	RD.request(uri, data={"files": str(files)}, auth=True, encode_data=False)
 
+### Unrestrict ###
+
+def verify_link(link):
+	uri = '/unrestrict/check'
+	post_data= {'link': link}
+	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
+	return response
+
 def resolve_url(link):
 	resolved_url = ''
 	uri = '/unrestrict/link'
@@ -182,5 +249,4 @@ def resolve_url(link):
 		return response['download']
 	else: 
 		return ''
-
 
