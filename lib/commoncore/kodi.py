@@ -464,13 +464,13 @@ def play_stream(url, metadata={"poster": "", "title": "", "resume_point": ""}):
 	on_playback_stop()
 
 def get_playback_times():
-	try:
-		percent = int(get_property('percent', 'service.core.playback'))
-		current_time = get_property('current_time', 'service.core.playback')
-		total_time = get_property('total_time', 'service.core.playback')
-		return current_time, total_time, percent
-	except:
-		return 0,0,0
+	#try:
+	percent = int(get_property('core.percent', 'service.core.playback'))
+	current_time = get_property('core.current_time', 'service.core.playback')
+	total_time = get_property('core.total_time', 'service.core.playback')
+	return current_time, total_time, percent
+	#except:
+	#	return 0,0,0
 	
 def check_resume_point(resume_point):
 	from core import format_time

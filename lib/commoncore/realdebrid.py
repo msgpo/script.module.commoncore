@@ -240,11 +240,15 @@ def verify_link(link):
 	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
 	return response
 
-def resolve_url(link):
-	resolved_url = ''
+def unrestrict_link(link):
 	uri = '/unrestrict/link'
 	post_data= {'link': link}
 	response = RD.request(uri, data=post_data, auth=True, encode_data=False)
+	return response
+
+def resolve_url(link):
+	resolved_url = ''
+	response = unrestrict_link(link)
 	if response and 'download' in response:
 		return response['download']
 	else: 
