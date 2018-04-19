@@ -15,6 +15,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *'''
 
+import sys
 import re
 import json
 import kodi
@@ -54,10 +55,18 @@ def format_size(num, suffix='B', split=False):
 	for unit in ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']:
 		if abs(num) < 1024.0:
 			if split: return num, unit, suffix
-			return "%3.1f%s%s" % (num, unit, suffix)
+			return "%3.1f %s%s" % (num, unit, suffix)
 		num /= 1024.0
 	if split: return num, unit, suffix
-	return "%.1f%s%s" % (num, 'Y', suffix)
+	return "%.1f %s%s" % (num, 'Y', suffix)
+
+def size_to_bytes(num, unit='B'):
+	unit = unit.upper()
+	if unit.endswith('B'): unit = unit[:-1]
+	units = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']
+	try: mult = pow(1024, units.index(unit))
+	except: mult = sys.maxint
+	return int(float(num) * mult)
 
 def format_time(seconds):
 	seconds = int(seconds)

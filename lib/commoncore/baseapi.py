@@ -138,10 +138,10 @@ class BASE_API():
 		traceback.print_stack()
 		raise error
 	
-	def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None):
+	def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None, encode_data=True):
 		self.prepair_query(query)
 		request_args = (uri,)
-		request_kwargs = {"query": query, "data": data, "append_base": append_base, "headers": headers, "auth": auth, "method": method, "timeout": timeout}
+		request_kwargs = {"query": query, "data": data, "append_base": append_base, "headers": headers, "auth": auth, "method": method, "timeout": timeout, "encode_data": encode_data}
 		self.set_user_agent(headers)
 		if auth is not None:
 			self.authorize()
@@ -155,13 +155,13 @@ class BASE_API():
 				else:
 					response = self.requests.get(url, headers=self.headers, timeout=timeout)
 			else:
+				if encode_data: data = json.dumps(data)
 				if method == 'PUT':
 					response = self.requests.put(url, data=json.dumps(data), headers=self.headers, timeout=timeout)
 				else:
-					response = self.requests.post(url, data=json.dumps(data), headers=self.headers, timeout=timeout)
+					response = self.requests.post(url, data=data, headers=self.headers, timeout=timeout)
 		except (requests.exceptions.Timeout, requests.exceptions.ConnectionError, requests.exceptions.TooManyRedirects) as e:
-			response = None
-			self.handel_error(connectionException(e), response, request_args, request_kwargs)
+			self.handel_error(connectionException(e), None, request_args, request_kwargs)
 		if response.status_code == requests.codes.ok or response.status_code == 201:
 			return self.process_response(response)
 		else:
@@ -194,10 +194,10 @@ class CACHABLE_API(BASE_API):
 			vfs.write_file(cache_file, zlib.compress(response))
 			vfs.write_file(cache_file+'.ts', str(cache_limit))
 	
-	def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None, cache_limit=0):
+	def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None, encode_data=True, cache_limit=0):
 		query = self.prepair_query(query)
 		request_args = (uri,)
-		request_kwargs = {"query": query, "data": data, "append_base": append_base, "headers": headers, "auth": auth, "method": method, "timeout": timeout, "cache_limit": cache_limit}
+		request_kwargs = {"query": query, "data": data, "append_base": append_base, "headers": headers, "auth": auth, "method": method, "timeout": timeout, "cache_limit": cache_limit, "encode_data": encode_data}
 		self.set_user_agent(headers)
 		if auth is not None:
 			self.authorize()
@@ -213,13 +213,13 @@ class CACHABLE_API(BASE_API):
 				else:
 					response = self.requests.get(url, headers=self.headers, timeout=timeout)
 			else:
+				if encode_data: data = json.dumps(data)
 				if method == 'PUT':
-					response = self.requests.put(url, data=json.dumps(data), headers=self.headers, timeout=timeout)
+					response = self.requests.put(url, data=data, headers=self.headers, timeout=timeout)
 				else:
-					response = self.requests.post(url, data=json.dumps(data), headers=self.headers, timeout=timeout)
+					response = self.requests.post(url, data=data, headers=self.headers, timeout=timeout)
 		except (requests.exceptions.Timeout, requests.exceptions.ConnectionError, requests.exceptions.TooManyRedirects) as e:
-			response = None
-			self.handel_error(connectionException(e), response, request_args, request_kwargs)
+			self.handel_error(connectionException(e), None, request_args, request_kwargs)
 		if response.status_code == requests.codes.ok or response.status_code == 201:
 			return self.process_response( url, response, cache_limit, request_args, request_kwargs)
 		else:
