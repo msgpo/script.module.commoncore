@@ -51,10 +51,11 @@ class ThreadPool:
 	accepts tasks that will be dispatched to the next available
 	thread."""
 	
-	def __init__(self, numThreads):
+	def __init__(self, numThreads, timeout=None):
 
 		"""Initialize the thread pool with numThreads workers."""
-		
+		self.__timeout = timeout
+		self.__abort_event = threading.Event()
 		self.__threads = []
 		self.__resizeLock = threading.Condition(threading.Lock())
 		self.__taskLock = threading.Condition(threading.Lock())
@@ -151,7 +152,7 @@ class ThreadPool:
 
 		# Wait for tasks to finish
 		if waitForTasks:
-			while not self.__tasks.empty():
+			while not self.__tasks.empty() and self.__abort_event.isSet() is False:
 				sleep(0.1)
 
 		# Tell all the threads to quit
@@ -162,7 +163,7 @@ class ThreadPool:
 				for t in self.__threads:
 					t.goAway()
 				for t in self.__threads:
-					t.join()
+					t.join(self.__timeout)
 					# print t,"joined"
 					del t
 			self.__setThreadCountNolock(0)
