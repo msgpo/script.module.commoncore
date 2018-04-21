@@ -354,7 +354,7 @@ def get_season_watched(id):
 
 
 def is_inprogress(media, trakt_id):
-	if trakt.query("SELECT 1 FROM playback_states WHERE media=? AND watched=0 AND trakt_id=?", [media, trakt_id]):
+	if trakt.query("SELECT 1 FROM playback_states WHERE media=? AND watched=0 AND ( current * 1.0 > 0 ) AND trakt_id=?", [media, trakt_id]):
 		return True
 	else:
 		return False
@@ -454,7 +454,7 @@ def get_last_epidode(id):
 	return trakt.request(uri, query={'extended': 'full'})
 
 def get_inprogress_shows():
-	return trakt.query("SELECT ids, metadata FROM playback_states WHERE media='episode' AND watched = 0 ORDER BY ts DESC")
+	return trakt.query("SELECT ids, metadata FROM playback_states WHERE media='episode' AND watched = 0 AND ( current * 1.0 > 0 ) ORDER BY ts DESC")
 
 
 """ Season Functions"""
@@ -530,7 +530,7 @@ def get_recommended_movies():
 	return trakt.request(uri, query={'extended': 'full'}, auth=True, cache_limit=EXPIRE_TIMES.DAY)
 
 def get_inprogress_movies():
-	return trakt.query("SELECT ids, metadata FROM playback_states WHERE media='movie' AND watched = 0 ORDER BY ts DESC")
+	return trakt.query("SELECT ids, metadata FROM playback_states WHERE media='movie' AND watched = 0 AND ( current * 1.0 > 0 ) ORDER BY ts DESC")
 
 
 """ LIST Functions """
