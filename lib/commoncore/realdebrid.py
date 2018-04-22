@@ -24,18 +24,26 @@ from commoncore.enum import enum
 from commoncore.basewindow import BaseWindow
 
 CLIENT_ID = 'X245A4XAIBGVM'
+
+class RealDebridAuthException(Exception):
+	pass
+
 class RealDebrid_API(BASE_API):
 	base_url = 'https://api.real-debrid.com/rest/1.0'
 	default_return_type = 'json'
 	headers = {}
-	attemp = 0
+	attempt = 0
 	timeout = 5
 	def authorize(self):
 		self.headers = {"Authorization": "Bearer %s" % kodi.get_setting('realdebrid_token', addon_id='script.module.scrapecore')}
 
 	def handel_error(self, error, response, request_args, request_kwargs):
 		if response is None: raise error
-		if response.status_code == 401 and request_kwargs['auth'] and self.attemp == 0:
+		if '"error": "bad_token"' in response.text and self.attempt ==  1:
+			kodi.handel_error('Bad Token', 'Authorize RealDebrid')
+			kodi.log(response.status_code)
+			kodi.log(response.text)
+		elif response.status_code == 401 and request_kwargs['auth'] and self.attempt == 0:
 			self.attempt = 1
 			refresh_token()
 			return self.request(*request_args, **request_kwargs)
