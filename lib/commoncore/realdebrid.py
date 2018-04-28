@@ -190,7 +190,7 @@ def list_torrents():
 
 def check_hashes(hashes):
 	uri = '/torrents/instantAvailability/' + '/'.join(hashes)
-	response = RD.request(uri, auth=True)
+	response = RD.request(uri, auth=False)
 	return response
 
 def get_torrent_info(torrent_id):
