@@ -448,11 +448,7 @@ def play_stream(url, metadata={"poster": "", "title": "", "resume_point": ""}):
 	listitem.setPath(url)
 	listitem.setInfo("video", metadata)
 	listitem.setProperty('IsPlayable', 'true')
-	if 'resume_point' in metadata and metadata['resume_point']:
-		resume_point = check_resume_point(metadata['resume_point'])
-	else:
-		resume_point = ''
-		
+	resume_point = check_resume_point()
 	set_property('core.playing', "true", 'service.core.playback')
 	if resume_point:
 		listitem.setProperty('totaltime', '999999')
@@ -463,7 +459,10 @@ def play_stream(url, metadata={"poster": "", "title": "", "resume_point": ""}):
 		xbmc.Player().play(url, listitem)
 	while get_property('core.playing', 'service.core.playback'):
 		sleep(100)
-	on_playback_stop()
+	_on_playback_stop()
+
+def set_playback_info(infoLabel):
+	set_property('core.infolabel', json.dumps(infoLabel), "service.core.playback")
 
 def get_playback_times():
 	#try:
@@ -474,20 +473,20 @@ def get_playback_times():
 	#except:
 	#	return 0,0,0
 	
-def check_resume_point(resume_point):
-	from core import format_time
-	set_point = False
-	if resume_point is not None and resume_point != 'None':
-		seconds = float(resume_point)
-		if seconds < 60:
-			return False
-		ok = dialog_confirm("Resume Playback?", "Resume playback from %s" % format_time(seconds), yes='Start from beginning', no='Resume') == 0
-		if ok:
-			set_point = int(seconds)
-	return set_point
+def check_resume_point():
+	if 'media' in args and 'trakt_id' in args:
+		import coreplayback
+		return coreplayback.check_resume_point(args['media'], args['trakt_id'])
+	return False
 		
+
 def on_playback_stop():
 	pass
+
+def _on_playback_stop():
+	on_playback_stop()
+	if get_setting('refresh_onstop') == 'true': 
+		go_to_url(get_property('last.plugin.url'))
 
 	
 def _register(mode, target, args=(), kwargs={}):
@@ -513,6 +512,8 @@ def run():
 	if args['mode'] == 'void': return
 	if get_setting('setup_run') != 'true' and 'video' in get_id():
 		first_run()
+	if mode not in ['search_streams', 'play_stream', 'master_control', 'open_settings', 'auth_realdebrid']:
+		set_property('last.plugin.url', sys.argv[0] + sys.argv[2])
 	if True:#try:
 		if args['mode'] == 'addon_settings': 
 			open_settings()
