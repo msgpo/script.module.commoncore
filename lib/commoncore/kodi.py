@@ -488,6 +488,10 @@ def _on_playback_stop():
 	if get_setting('refresh_onstop') == 'true': 
 		go_to_url(get_property('last.plugin.url'))
 
+def map_directory(items, args=(), kwargs={}):
+	def decorator(func):
+		map(func, items)
+	return decorator
 	
 def _register(mode, target, args=(), kwargs={}):
 	if isinstance(mode, list):
