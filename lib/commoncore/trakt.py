@@ -178,7 +178,7 @@ class TraktAPI(BASE_TraktAPI):
 		traceback.print_stack()
 		if response is None:
 			kodi.handel_error("Trakt Error", "See log file")
-			#raise error
+			kodi.log(error)
 		elif response.status_code > 499:
 			kodi.handel_error("Temporary Trakt Error", "%s: %s" % (response.status_code, ERROR_CODES[response.status_code]))
 			#raise TraktException("Temporary Trakt Error <<%s>>: %s" % (response.status_code, ERROR_CODES[response.status_code]))
