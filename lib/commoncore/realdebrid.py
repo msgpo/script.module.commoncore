@@ -24,25 +24,30 @@ from commoncore.enum import enum
 from commoncore.basewindow import BaseWindow
 
 CLIENT_ID = 'X245A4XAIBGVM'
+
+class RealDebridAuthException(Exception):
+	pass
+
 class RealDebrid_API(BASE_API):
 	base_url = 'https://api.real-debrid.com/rest/1.0'
 	default_return_type = 'json'
 	headers = {}
-	attemp = 0
+	attempt = 0
 	timeout = 5
 	def authorize(self):
 		self.headers = {"Authorization": "Bearer %s" % kodi.get_setting('realdebrid_token', addon_id='script.module.scrapecore')}
 
 	def handel_error(self, error, response, request_args, request_kwargs):
 		if response is None: raise error
-		if response.status_code == 401 and request_kwargs['auth'] and self.attemp == 0:
+		if response.status_code == 401 and request_kwargs['auth'] is True and self.attempt == 0:
 			self.attempt = 1
-			refresh_token()
+			token = refresh_token()
 			return self.request(*request_args, **request_kwargs)
+		elif response.status_code == 401 and request_kwargs['auth'] is True and self.attempt == 1:
+			kodi.handel_error('Bad Token', 'Authorize RealDebrid')
 		else:
 			kodi.log(response.status_code)
 			kodi.log(response.text)
-			
 	
 RD = RealDebrid_API()
 session = requests.Session()
@@ -117,13 +122,16 @@ def request_token(client_id, client_secret, code):
 	return response.json()
 
 def refresh_token():
+	kodi.log("Refreshing Token now")
 	url = 'https://api.real-debrid.com/oauth/v2/token'
 	data = {'client_id': kodi.get_setting('realdebrid_client_id', addon_id='script.module.scrapecore'), 'client_secret': kodi.get_setting('realdebrid_client_secret', addon_id='script.module.scrapecore'), 'code': kodi.get_setting('realdebrid_refresh_token', addon_id='script.module.scrapecore'), 'grant_type': 'http://oauth.net/grant_type/device/1.0'}
 	response = session.post(url, data=data)
-	response.json()
+	response = response.json()
 	if 'access_token' in response:
 		kodi.set_setting('realdebrid_token', response['access_token'], addon_id='script.module.scrapecore')
-	return response		
+		return response['access_token']
+	else:
+		return False
 
 ### Hosts ###
 
@@ -182,7 +190,7 @@ def list_torrents():
 
 def check_hashes(hashes):
 	uri = '/torrents/instantAvailability/' + '/'.join(hashes)
-	response = RD.request(uri, auth=True)
+	response = RD.request(uri, auth=False)
 	return response
 
 def get_torrent_info(torrent_id):
