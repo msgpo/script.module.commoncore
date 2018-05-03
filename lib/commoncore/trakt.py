@@ -176,18 +176,19 @@ class TraktAPI(BASE_TraktAPI):
 	
 	def handel_error(self, error, response, request_args, request_kwargs):
 		traceback.print_stack()
+		kodi.log(error)
 		if response is None:
 			kodi.handel_error("Trakt Error", "See log file")
-			kodi.log(error)
-			return
+			raise error
+			
 		elif response.status_code > 499:
 			kodi.handel_error("Temporary Trakt Error", "%s: %s" % (response.status_code, ERROR_CODES[response.status_code]))
 			#raise TraktException("Temporary Trakt Error <<%s>>: %s" % (response.status_code, ERROR_CODES[response.status_code]))
-			return
+
 		else:
 			kodi.handel_error("Trakt Error", "%s: %s" % (response.status_code, ERROR_CODES[response.status_code]))
-			#raise TraktException("Trakt Error <<%s>>: %s" % (response.status_code, ERROR_CODES[response.status_code]))
-			return
+			raise TraktException("Trakt Error <<%s>>: %s" % (response.status_code, ERROR_CODES[response.status_code]))
+
 	
 	def process_response(self, url, response, cache_limit,request_args, request_kwargs):
 		total_pages = int(response.headers['X-Pagination-Page-Count']) if 'X-Pagination-Page-Count' in response.headers else 1
