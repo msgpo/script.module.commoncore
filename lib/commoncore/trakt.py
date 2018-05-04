@@ -249,7 +249,7 @@ def _check_activities():
 
 	for media in ['movies', 'shows', 'seasons', 'episodes', 'lists']:
 		results[media] = {}
-		for activity in ['watched_at', 'watchlisted_at', 'updated_at', 'collected_at']:
+		for activity in ['watched_at', 'watchlisted_at', 'updated_at', 'collected_at', 'commented_at']:
 			if not response: return results
 			if activity in response[media]:
 				ts = response[media][activity]
@@ -355,7 +355,6 @@ def get_season_watched(id):
 		if r['episode']['season'] not in watched: watched[r['episode']['season']] = []
 		watched[r['episode']['season']].append(r['episode']['number'])
 	return watched
-
 
 def is_inprogress(media, trakt_id):
 	if trakt.query("SELECT 1 FROM playback_states WHERE media=? AND watched=0 AND ( current * 1.0 > 0 ) AND trakt_id=?", [media, trakt_id]):
