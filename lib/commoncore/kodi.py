@@ -485,6 +485,16 @@ def on_playback_stop():
 
 def _on_playback_stop():
 	on_playback_stop()
+	hash = get_property('Playback.Hash')
+	if hash:
+		from scrapecore.scrapecore import delete_torrent
+		resolver = get_property('Playback.Resolver')
+		id = get_property('Playback.Id')
+		delete_torrent(resolver, hash, id)
+		set_property('Playback.Hash', '')
+		set_property('Playback.Resolver', '')
+		set_property('Playback.Id', '')
+	
 	if get_setting('refresh_onstop') == 'true': 
 		go_to_url(get_property('last.plugin.url'))
 
