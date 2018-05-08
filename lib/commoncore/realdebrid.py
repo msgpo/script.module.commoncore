@@ -42,10 +42,14 @@ class RealDebrid_API(BASE_API):
 		if response.status_code == 401 and request_kwargs['auth'] is True and self.attempt == 0:
 			self.attempt = 1
 			token = refresh_token()
+			kodi.log(token)
 			return self.request(*request_args, **request_kwargs)
 		elif response.status_code == 401 and request_kwargs['auth'] is True and self.attempt == 1:
+			kodi.log(response.status_code)
+			kodi.log(response.text)
 			kodi.handel_error('Bad Token', 'Authorize RealDebrid')
 		else:
+			kodi.log(response.url)
 			kodi.log(response.status_code)
 			kodi.log(response.text)
 	
@@ -189,10 +193,12 @@ def list_torrents():
 	return response
 
 def check_hashes(hashes):
-	uri = '/torrents/instantAvailability/' + '/'.join(hashes)
-	response = RD.request(uri, auth=True)
-	return response
-
+	if hashes:
+		uri = '/torrents/instantAvailability/' + '/'.join(hashes)
+		response = RD.request(uri, auth=True)
+		return response
+	else: return []
+	
 def get_torrent_info(torrent_id):
 	uri = '/torrents/info/' + torrent_id
 	response = RD.request(uri, auth=True)

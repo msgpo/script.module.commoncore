@@ -107,8 +107,10 @@ def get_download(link):
 	return response
 
 def check_hashes(hashes):
-	uri = '/api/torrent/checkhashes'
-	return PremiumizeV2.request(uri, query={"hashes": hashes})
+	if hashes:
+		uri = '/api/torrent/checkhashes'
+		return PremiumizeV2.request(uri, query={"hashes": hashes})
+	else: return []
 
 def check_items(items):
 	uri = '/api/cache/check'
