@@ -415,7 +415,7 @@ def add_menu_item(query, infolabels, total_items=0, icon='', image='', fanart=''
 
 
 
-def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='', replace_menu=True, menu=None, format=None):
+def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='', replace_menu=True, menu=None, format=None, random_url=True):
 	if 'display' in infolabels: infolabels['title'] = infolabels['display']
 	if not fanart:
 		fanart = get_path() + '/fanart.jpg'
@@ -435,7 +435,7 @@ def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='
 	if MC_NATIVE:
 		listitem.setProperty('Master.Control', 'native')
 	listitem.setProperty('fanart_image', fanart)
-	query['rand'] = random.random()
+	if random_url: query['rand'] = random.random()
 	if menu is None:
 		menu = ContextMenu()
 	menu.add("Addon Settings", {"mode": "addon_settings"}, script=True)
