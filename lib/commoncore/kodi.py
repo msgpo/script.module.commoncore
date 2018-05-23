@@ -444,19 +444,32 @@ def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='
 	xbmcplugin.addDirectoryItem(HANDLE_ID, plugin_url, listitem, isFolder=False, totalItems=total_items)
 	
 def play_stream(url, metadata={"poster": "", "title": "", "resume_point": ""}):
-	listitem = xbmcgui.ListItem(metadata['title'], iconImage=metadata['poster'], thumbnailImage=metadata['poster'], path=url)
-	listitem.setPath(url)
-	listitem.setInfo("video", metadata)
-	listitem.setProperty('IsPlayable', 'true')
-	resume_point = check_resume_point()
 	set_property('core.playing', "true", 'service.core.playback')
-	if resume_point:
-		listitem.setProperty('totaltime', '999999')
-		listitem.setProperty('resumetime', str(resume_point))
-	if HANDLE_ID > -1:
-		xbmcplugin.setResolvedUrl(HANDLE_ID, True, listitem)
+	if url.startswith("playlist://"):
+		li = eval(url[11:])
+		plst = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+		plst.clear()
+		xbmc.sleep(200)
+		for l in li:
+			index = li.index(l)
+			liz = xbmcgui.ListItem(metadata['title'], path=l)
+			plst.add(l, liz, index)
+			if index == 0: xbmcplugin.setResolvedUrl(HANDLE_ID, True, liz)
+		plst.unshuffle()
 	else:
-		xbmc.Player().play(url, listitem)
+		listitem = xbmcgui.ListItem(metadata['title'], iconImage=metadata['poster'], thumbnailImage=metadata['poster'], path=url)
+		listitem.setPath(url)
+		listitem.setInfo("video", metadata)
+		listitem.setProperty('IsPlayable', 'true')
+		resume_point = check_resume_point()
+		
+		if resume_point:
+			listitem.setProperty('totaltime', '999999')
+			listitem.setProperty('resumetime', str(resume_point))
+		if HANDLE_ID > -1:
+			xbmcplugin.setResolvedUrl(HANDLE_ID, True, listitem)
+		else:
+			xbmc.Player().play(url, listitem)
 	while get_property('core.playing', 'service.core.playback'):
 		sleep(100)
 	_on_playback_stop()
