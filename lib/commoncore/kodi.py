@@ -306,8 +306,8 @@ def handel_error(title, message, timeout=3000):
 	xbmc.executebuiltin(cmd)
 	sys.exit()
 
-def dialog_input(title):
-	kb = xbmc.Keyboard('', title, False)
+def dialog_input(title, default=''):
+	kb = xbmc.Keyboard(default, title, False)
 	kb.doModal()
 	if (kb.isConfirmed()):
 		text = kb.getText()
