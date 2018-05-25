@@ -258,7 +258,7 @@ def select_torrent_files(torrent_id, file_ids):
 def verify_link(link):
 	uri = '/unrestrict/check'
 	post_data= {'link': link}
-	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
+	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS, encode_data=False)
 	return response
 
 def unrestrict_link(link):
