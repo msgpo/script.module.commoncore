@@ -306,8 +306,8 @@ def handel_error(title, message, timeout=3000):
 	xbmc.executebuiltin(cmd)
 	sys.exit()
 
-def dialog_input(title):
-	kb = xbmc.Keyboard('', title, False)
+def dialog_input(title, default=''):
+	kb = xbmc.Keyboard(default, title, False)
 	kb.doModal()
 	if (kb.isConfirmed()):
 		text = kb.getText()
@@ -318,6 +318,13 @@ def dialog_input(title):
 def dialog_textbox(heading, content):
 		TextBox().show(heading, content)
 
+def dialog_context(options):
+	dialog = xbmcgui.Dialog()
+	index = dialog.contextmenu(options)
+	if index >= 0:
+		return index
+	else: 
+		return False
 
 def dialog_select(heading, options):
 	dialog = xbmcgui.Dialog()
@@ -327,6 +334,56 @@ def dialog_select(heading, options):
 	else: 
 		return False
 
+def multi_select(heading, options, selected=[]):
+	from commoncore.basewindow import BaseWindow
+	from commoncore.enum import enum
+	CONTROLS = enum(CLOSE=82000, LIST=85001, TITLE=85005, CANCEL=85011, OK=85012)
+	skin_path = vfs.join("special://home/addons", "script.module.commoncore/")
+	class MultiSelect(BaseWindow):
+		def __init__(self, *args, **kwargs):
+			BaseWindow.__init__(self)
+			self.return_val = []
+	
+		def onInit(self):
+			for c in options:
+				if type(c) is tuple:
+					t,v = c
+					liz = xbmcgui.ListItem(t, iconImage='')
+					liz.setProperty("value", v)
+				elif type(c) is list:
+					t = c[0]
+					v = c[1]
+				else:
+					t = c
+					v = options.index(c)
+				liz = xbmcgui.ListItem(t, iconImage='')
+				liz.setProperty("value", str(v))
+				if options.index(c) in selected:
+					liz.setProperty("selected", "checked.png")
+				self.getControl(CONTROLS.LIST).addItem(liz)
+			self.getControl(CONTROLS.TITLE).setLabel(heading)
+			self.setFocus(self.getControl(CONTROLS.LIST))
+		
+		def onClick(self, controlID):
+			if controlID==CONTROLS.LIST:
+				index = self.getControl(CONTROLS.LIST).getSelectedPosition()
+				s = self.getControl(CONTROLS.LIST).getListItem(index).getProperty("selected") != ""
+				if s:
+					self.getControl(CONTROLS.LIST). getListItem(index).setProperty("selected", "")
+				else:
+					self.getControl(CONTROLS.LIST). getListItem(index).setProperty("selected", "checked.png")
+	
+			elif controlID in [ CONTROLS.CLOSE, CONTROLS.CANCEL]:
+				self.close()
+			elif controlID == CONTROLS.OK:
+				for index in xrange(self.getControl(CONTROLS.LIST).size()):
+					if self.getControl(CONTROLS.LIST).getListItem(index).getProperty("selected") != "":
+						self.return_val.append(self.getControl(CONTROLS.LIST).getListItem(index).getProperty("value"))
+				self.close()
+
+	s = MultiSelect("multi_select.xml", skin_path)
+	return s.show()
+	
 def dialog_confirm(title, m1='', m2='', m3='', yes='', no=''):
 	dialog = xbmcgui.Dialog()
 	return dialog.yesno(title, m1, m2, m3, no, yes)
@@ -415,7 +472,7 @@ def add_menu_item(query, infolabels, total_items=0, icon='', image='', fanart=''
 
 
 
-def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='', replace_menu=True, menu=None, format=None):
+def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='', replace_menu=True, menu=None, format=None, random_url=True):
 	if 'display' in infolabels: infolabels['title'] = infolabels['display']
 	if not fanart:
 		fanart = get_path() + '/fanart.jpg'
@@ -435,7 +492,7 @@ def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='
 	if MC_NATIVE:
 		listitem.setProperty('Master.Control', 'native')
 	listitem.setProperty('fanart_image', fanart)
-	query['rand'] = random.random()
+	if random_url: query['rand'] = random.random()
 	if menu is None:
 		menu = ContextMenu()
 	menu.add("Addon Settings", {"mode": "addon_settings"}, script=True)
@@ -444,19 +501,32 @@ def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='
 	xbmcplugin.addDirectoryItem(HANDLE_ID, plugin_url, listitem, isFolder=False, totalItems=total_items)
 	
 def play_stream(url, metadata={"poster": "", "title": "", "resume_point": ""}):
-	listitem = xbmcgui.ListItem(metadata['title'], iconImage=metadata['poster'], thumbnailImage=metadata['poster'], path=url)
-	listitem.setPath(url)
-	listitem.setInfo("video", metadata)
-	listitem.setProperty('IsPlayable', 'true')
-	resume_point = check_resume_point()
 	set_property('core.playing', "true", 'service.core.playback')
-	if resume_point:
-		listitem.setProperty('totaltime', '999999')
-		listitem.setProperty('resumetime', str(resume_point))
-	if HANDLE_ID > -1:
-		xbmcplugin.setResolvedUrl(HANDLE_ID, True, listitem)
+	if url.startswith("playlist://"):
+		li = eval(url[11:])
+		plst = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+		plst.clear()
+		xbmc.sleep(200)
+		for l in li:
+			index = li.index(l)
+			liz = xbmcgui.ListItem(metadata['title'], path=l)
+			plst.add(l, liz, index)
+			if index == 0: xbmcplugin.setResolvedUrl(HANDLE_ID, True, liz)
+		plst.unshuffle()
 	else:
-		xbmc.Player().play(url, listitem)
+		listitem = xbmcgui.ListItem(metadata['title'], iconImage=metadata['poster'], thumbnailImage=metadata['poster'], path=url)
+		listitem.setPath(url)
+		listitem.setInfo("video", metadata)
+		listitem.setProperty('IsPlayable', 'true')
+		resume_point = check_resume_point()
+		
+		if resume_point:
+			listitem.setProperty('totaltime', '999999')
+			listitem.setProperty('resumetime', str(resume_point))
+		if HANDLE_ID > -1:
+			xbmcplugin.setResolvedUrl(HANDLE_ID, True, listitem)
+		else:
+			xbmc.Player().play(url, listitem)
 	while get_property('core.playing', 'service.core.playback'):
 		sleep(100)
 	_on_playback_stop()
@@ -485,6 +555,16 @@ def on_playback_stop():
 
 def _on_playback_stop():
 	on_playback_stop()
+	hash = get_property('Playback.Hash')
+	if hash:
+		from scrapecore.scrapecore import delete_torrent
+		resolver = get_property('Playback.Resolver')
+		id = get_property('Playback.Id')
+		delete_torrent(resolver, hash, id)
+		set_property('Playback.Hash', '')
+		set_property('Playback.Resolver', '')
+		set_property('Playback.Id', '')
+	
 	if get_setting('refresh_onstop') == 'true': 
 		go_to_url(get_property('last.plugin.url'))
 

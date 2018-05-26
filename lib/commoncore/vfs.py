@@ -138,6 +138,12 @@ def basename(path):
 def filename(path):
 	return os.path.split(path)[-1]
 
+def is_file(path):
+	return 
+
+def is_directory(path):
+	pass
+
 def ls(path, pattern=None, inlcude_path=False):
 	try:
 		if pattern:

@@ -35,17 +35,28 @@ class RealDebrid_API(BASE_API):
 	attempt = 0
 	timeout = 5
 	def authorize(self):
+		# wait for token to refresh if needed
+		i=0
+		while True:
+			if not kodi.get_property("token.refresh") or i > 20: break
+			kodi.sleep(100)
+			i+=1
 		self.headers = {"Authorization": "Bearer %s" % kodi.get_setting('realdebrid_token', addon_id='script.module.scrapecore')}
 
 	def handel_error(self, error, response, request_args, request_kwargs):
 		if response is None: raise error
 		if response.status_code == 401 and request_kwargs['auth'] is True and self.attempt == 0:
 			self.attempt = 1
+			kodi.set_property("token.refresh", "true")
 			token = refresh_token()
+			kodi.set_property("token.refresh", "")
 			return self.request(*request_args, **request_kwargs)
 		elif response.status_code == 401 and request_kwargs['auth'] is True and self.attempt == 1:
+			kodi.log(response.status_code)
+			kodi.log(response.text)
 			kodi.handel_error('Bad Token', 'Authorize RealDebrid')
 		else:
+			kodi.log(response.url)
 			kodi.log(response.status_code)
 			kodi.log(response.text)
 	
@@ -189,10 +200,12 @@ def list_torrents():
 	return response
 
 def check_hashes(hashes):
-	uri = '/torrents/instantAvailability/' + '/'.join(hashes)
-	response = RD.request(uri, auth=False)
-	return response
-
+	if hashes:
+		uri = '/torrents/instantAvailability/' + '/'.join(hashes)
+		response = RD.request(uri, auth=True)
+		return response
+	else: return []
+	
 def get_torrent_info(torrent_id):
 	uri = '/torrents/info/' + torrent_id
 	response = RD.request(uri, auth=True)
@@ -245,7 +258,7 @@ def select_torrent_files(torrent_id, file_ids):
 def verify_link(link):
 	uri = '/unrestrict/check'
 	post_data= {'link': link}
-	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
+	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS, encode_data=False)
 	return response
 
 def unrestrict_link(link):
