@@ -318,6 +318,13 @@ def dialog_input(title, default=''):
 def dialog_textbox(heading, content):
 		TextBox().show(heading, content)
 
+def dialog_context(options):
+	dialog = xbmcgui.Dialog()
+	index = dialog.contextmenu(options)
+	if index >= 0:
+		return index
+	else: 
+		return False
 
 def dialog_select(heading, options):
 	dialog = xbmcgui.Dialog()
@@ -327,6 +334,57 @@ def dialog_select(heading, options):
 	else: 
 		return False
 
+def multi_select(heading, options, selected=[]):
+	from commoncore.basewindow import BaseWindow
+	from commoncore.enum import enum
+	CONTROLS = enum(CLOSE=82000, LIST=85001, TITLE=85005, CANCEL=85011, OK=85012)
+	skin_path = vfs.join("special://home/addons", "script.module.commoncore/")
+	class MultiSelect(BaseWindow):
+		def __init__(self, *args, **kwargs):
+			BaseWindow.__init__(self)
+			self.return_val = []
+	
+		def onInit(self):
+			for c in options:
+				if type(c) is tuple:
+					t,v = c
+					liz = xbmcgui.ListItem(t, iconImage='')
+					liz.setProperty("value", v)
+				elif type(c) is list:
+					t = c[0]
+					v = c[1]
+				else:
+					t = c
+					v = options.index(c)
+				liz = xbmcgui.ListItem(t, iconImage='')
+				liz.setProperty("value", str(v))
+				if options.index(c) in selected:
+					liz.setProperty("selected", "checked.png")
+				self.getControl(CONTROLS.LIST).addItem(liz)
+			self.getControl(CONTROLS.TITLE).setLabel(heading)
+			self.setFocus(self.getControl(CONTROLS.LIST))
+		
+		def onClick(self, controlID):
+			if controlID==CONTROLS.LIST:
+				index = self.getControl(CONTROLS.LIST).getSelectedPosition()
+				s = self.getControl(CONTROLS.LIST).getListItem(index).getProperty("selected") != ""
+				if s:
+					self.getControl(CONTROLS.LIST). getListItem(index).setProperty("selected", "")
+				else:
+					self.getControl(CONTROLS.LIST). getListItem(index).setProperty("selected", "checked.png")
+	
+			elif controlID in [ CONTROLS.CLOSE, CONTROLS.CANCEL]:
+				self.close()
+			elif controlID == CONTROLS.OK:
+				for index in xrange(self.getControl(CONTROLS.LIST).size()):
+					if self.getControl(CONTROLS.LIST).getListItem(index).getProperty("selected") != "":
+						self.return_val.append(self.getControl(CONTROLS.LIST).getListItem(index).getProperty("value"))
+				self.close()
+
+	s = MultiSelect("multi_select.xml", skin_path)
+	selected = s.show()
+	log(selected)
+	
 def dialog_confirm(title, m1='', m2='', m3='', yes='', no=''):
 	dialog = xbmcgui.Dialog()
 	return dialog.yesno(title, m1, m2, m3, no, yes)
