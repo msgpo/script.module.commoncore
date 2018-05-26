@@ -67,13 +67,13 @@ class StreamSelect(BaseWindow):
 			self.getControl(CONTROLS.LIST).addItem(liz)
 		
 		map(process_streams, self.streams)
-		self.getControl(CONTROLS.TITLE).setLabel("Found %s stream(s)" % len(streams))
-		self.getControl(CONTROLS.LIST).addItems(items)
+		self.getControl(CONTROLS.TITLE).setLabel("Found %s stream(s)" % len(self.streams))
+		self.setFocus(self.getControl(CONTROLS.LIST))
 		self.getControl(CONTROLS.LIST).selectItem(0)
 		kodi.close_busy_dialog()
 	
 	def onClick(self, controlID):
-		if controlID==CONTROLS.LISTS:
+		if controlID==CONTROLS.LIST:
 			index = self.getControl(CONTROLS.LIST).getSelectedPosition()
 			raw_url = self.getControl(CONTROLS.LIST).getSelectedItem().getProperty("raw_url")
 			service = self.getControl(CONTROLS.LIST).getSelectedItem().getProperty("service")
@@ -84,7 +84,7 @@ class StreamSelect(BaseWindow):
 				self.close()
 			else:
 				kodi.notify("Stream failed", "Select a different stream.")
-				index = self.getControl(CONTROLS.LISTS).removeItem(index)
+				index = self.getControl(CONTROLS.LIST).removeItem(index)
 
 		elif controlID == CONTROLS.CLOSE:
 			self.close()
@@ -92,6 +92,7 @@ class StreamSelect(BaseWindow):
 def select_stream(streams):
 	s = StreamSelect("stream_select.xml", kodi.vfs.join("special://home/addons", "script.module.commoncore/"))
 	resolved_url = s.select_stream(streams)
+	kodi.log(resolved_url)
 	return resolved_url
 
 	
