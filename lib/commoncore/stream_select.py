@@ -31,17 +31,6 @@ from commoncore.basewindow import BaseWindow
 
 CONTROLS = enum(CLOSE=82000, LIST=91050, TITLE=82001)
 table = {9: "local.png", 8: 'hd1080.png', 7:"hd720.png", 6: "hd.png", 5: "hd.png", 4:"sd480.png", 3:"unknown.png", 2:"low.png", 1:"low.png"}
-'''
-def format_size(size):
-	if size == 0 or size is None: return False
-	size = int(size) / (1024 * 1024)
-	if size > 2000:
-		size = size / 1024
-		unit = 'GB'
-	else :
-		unit = 'MB'
-	size = "%s %s" % (size, unit)
-	return size'''
 			
 class StreamSelect(BaseWindow):
 	def __init__(self, *args, **kwargs):
@@ -52,10 +41,7 @@ class StreamSelect(BaseWindow):
 		return self.show()
 	
 	def onInit(self):
-		#kodi.open_busy_dialog()
-		#items = []
-		#streams = {v['raw_url']:v for v in self.streams}.values()
-		
+		kodi.open_busy_dialog()
 		def process_streams(stream):
 			icon = table[stream['quality']]
 			liz = xbmcgui.ListItem(stream['title'], iconImage='definition/' + icon)
@@ -75,59 +61,30 @@ class StreamSelect(BaseWindow):
 					display.append('[COLOR darkorange]x265[/COLOR]')
 			if 'hc' in stream:
 				if stream['hc']:
-					display.append('[COLOR olive]HC[/COLOR]')	
+					display.append('[COLOR olive]HC[/COLOR]')
 			liz.setLabel2('  '.join(display))
 			
 			self.getControl(CONTROLS.LIST).addItem(liz)
 		
 		map(process_streams, self.streams)
-		'''
-		streams.sort(reverse=True, key=lambda k: k['quality'])
-		for stream in streams:
-			icon = table[stream['quality']]
-			liz = xbmcgui.ListItem(stream['title'], iconImage='definition/' + icon)
-			liz.setProperty('raw_url', stream['url'])
-			liz.setProperty('service', stream['service'])
-			liz.setProperty("host", stream['host'])
-			display = []
-			if 'size' in stream:
-				size = format_size(stream['size'])
-				if size:
-					display.append('[COLOR blue]Size: ' + size + '[/COLOR]')
-			if 'extension' in stream:
-				if stream['extension'] is not False and stream['extension'].lower() in ['avi', 'mkv', 'mp4', 'flv']:
-					display.append('[COLOR green]Ext: ' + stream['extension'] + '[/COLOR]')
-			if 'x265' in stream:
-				if stream['x265']:
-					display.append('[COLOR darkorange]x265[/COLOR]')
-			if 'hc' in stream:
-				if stream['hc']:
-					display.append('[COLOR olive]HC[/COLOR]')	
-			liz.setLabel2('  '.join(display))
-			items.append(liz)'''
 		self.getControl(CONTROLS.TITLE).setLabel("Found %s stream(s)" % len(streams))
 		self.getControl(CONTROLS.LIST).addItems(items)
 		self.getControl(CONTROLS.LIST).selectItem(0)
-		#kodi.close_busy_dialog()
+		kodi.close_busy_dialog()
 	
 	def onClick(self, controlID):
 		if controlID==CONTROLS.LISTS:
 			index = self.getControl(CONTROLS.LIST).getSelectedPosition()
 			raw_url = self.getControl(CONTROLS.LIST).getSelectedItem().getProperty("raw_url")
 			service = self.getControl(CONTROLS.LIST).getSelectedItem().getProperty("service")
-			'''SCRAPER_DIR = vfs.join(kodi.get_path(), 'lib/scrapers')
-			sys.path.append(SCRAPER_DIR)
-			classname = service+'Scraper'
-			scraper = importlib.import_module(service)
-			klass = getattr(scraper, classname)
-			scraper = klass()
-			resolved_url = scraper.resolve_url(raw_url)
+			from scrapecore import scrapers
+			resolved_url = scrapers.get_scraper_by_name(service).resolve_url(raw_url)
 			if resolved_url:
-				self.choice = resolved_url
+				self.return_val = resolved_url
 				self.close()
 			else:
 				kodi.notify("Stream failed", "Select a different stream.")
-				index = self.getControl(CONTROLS.LISTS).removeItem(index)'''
+				index = self.getControl(CONTROLS.LISTS).removeItem(index)
 
 		elif controlID == CONTROLS.CLOSE:
 			self.close()
