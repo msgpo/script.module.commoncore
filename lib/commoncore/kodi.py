@@ -387,8 +387,7 @@ def multi_select(heading, options, selected=[]):
 				self.close()
 
 	s = MultiSelect("multi_select.xml", skin_path)
-	selected = s.show()
-	log(selected)
+	return s.show()
 	
 def dialog_confirm(title, m1='', m2='', m3='', yes='', no=''):
 	dialog = xbmcgui.Dialog()
