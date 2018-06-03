@@ -24,41 +24,25 @@ from commoncore.enum import enum
 from commoncore.basewindow import BaseWindow
 
 CLIENT_ID = 'X245A4XAIBGVM'
-
-class RealDebridAuthException(Exception):
-	pass
-
 class RealDebrid_API(BASE_API):
 	base_url = 'https://api.real-debrid.com/rest/1.0'
 	default_return_type = 'json'
 	headers = {}
-	attempt = 0
+	attemp = 0
 	timeout = 5
 	def authorize(self):
-		# wait for token to refresh if needed
-		i=0
-		while True:
-			if not kodi.get_property("token.refresh") or i > 20: break
-			kodi.sleep(100)
-			i+=1
 		self.headers = {"Authorization": "Bearer %s" % kodi.get_setting('realdebrid_token', addon_id='script.module.scrapecore')}
 
 	def handel_error(self, error, response, request_args, request_kwargs):
 		if response is None: raise error
-		if response.status_code == 401 and request_kwargs['auth'] is True and self.attempt == 0:
+		if response.status_code == 401 and request_kwargs['auth'] and self.attemp == 0:
 			self.attempt = 1
-			kodi.set_property("token.refresh", "true")
-			token = refresh_token()
-			kodi.set_property("token.refresh", "")
+			refresh_token()
 			return self.request(*request_args, **request_kwargs)
-		elif response.status_code == 401 and request_kwargs['auth'] is True and self.attempt == 1:
-			kodi.log(response.status_code)
-			kodi.log(response.text)
-			kodi.handel_error('Bad Token', 'Authorize RealDebrid')
 		else:
-			kodi.log(response.url)
 			kodi.log(response.status_code)
 			kodi.log(response.text)
+			
 	
 RD = RealDebrid_API()
 session = requests.Session()
@@ -133,16 +117,13 @@ def request_token(client_id, client_secret, code):
 	return response.json()
 
 def refresh_token():
-	kodi.log("Refreshing Token now")
 	url = 'https://api.real-debrid.com/oauth/v2/token'
 	data = {'client_id': kodi.get_setting('realdebrid_client_id', addon_id='script.module.scrapecore'), 'client_secret': kodi.get_setting('realdebrid_client_secret', addon_id='script.module.scrapecore'), 'code': kodi.get_setting('realdebrid_refresh_token', addon_id='script.module.scrapecore'), 'grant_type': 'http://oauth.net/grant_type/device/1.0'}
 	response = session.post(url, data=data)
-	response = response.json()
+	response.json()
 	if 'access_token' in response:
 		kodi.set_setting('realdebrid_token', response['access_token'], addon_id='script.module.scrapecore')
-		return response['access_token']
-	else:
-		return False
+	return response		
 
 ### Hosts ###
 
@@ -200,12 +181,10 @@ def list_torrents():
 	return response
 
 def check_hashes(hashes):
-	if hashes:
-		uri = '/torrents/instantAvailability/' + '/'.join(hashes)
-		response = RD.request(uri, auth=True)
-		return response
-	else: return []
-	
+	uri = '/torrents/instantAvailability/' + '/'.join(hashes)
+	response = RD.request(uri, auth=True)
+	return response
+
 def get_torrent_info(torrent_id):
 	uri = '/torrents/info/' + torrent_id
 	response = RD.request(uri, auth=True)
@@ -258,7 +237,7 @@ def select_torrent_files(torrent_id, file_ids):
 def verify_link(link):
 	uri = '/unrestrict/check'
 	post_data= {'link': link}
-	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS, encode_data=False)
+	response = RD.request(uri, data=post_data, cache_limit=EXPIRE_TIMES.EIGHTHOURS)
 	return response
 
 def unrestrict_link(link):

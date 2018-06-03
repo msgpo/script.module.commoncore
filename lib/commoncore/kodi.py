@@ -244,6 +244,9 @@ def exit():
 	return exit
 
 def kodi_json_request(method, params, id=1):
+	if type(params) is not dict:
+		from ast import literal_eval
+		params = literal_eval(params)
 	jsonrpc =  json.dumps({ "jsonrpc": "2.0", "method": method, "params": params, "id": id })
 	response = json.loads(xbmc.executeJSONRPC(jsonrpc))
 	return response
@@ -305,6 +308,11 @@ def handel_error(title, message, timeout=3000):
 	cmd = "XBMC.Notification(%s, %s, %s, %s)" % (title.encode('utf-8'), message.encode('utf-8'), timeout, image)
 	xbmc.executebuiltin(cmd)
 	sys.exit()
+
+def dialog_file_browser(title, mask='', path='/'):
+	dialog = xbmcgui.Dialog()
+	return dialog.browseSingle(1, title, 'files', mask, False, False, path)
+	
 
 def dialog_input(title, default=''):
 	kb = xbmc.Keyboard(default, title, False)

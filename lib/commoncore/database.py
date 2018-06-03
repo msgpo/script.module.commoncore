@@ -362,7 +362,7 @@ class MySQLDatabase(BASEDatabase):
 			if(len(rows)==1 and not force_double_array):
 				d = {}
 				for idx, col in enumerate(self.DBC.column_names):
-					d[col] = rows[0][idx]
+					d[col] = row[0][idx]
 				return d
 			else:
 				set = []
