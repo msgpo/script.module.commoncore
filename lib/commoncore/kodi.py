@@ -306,6 +306,11 @@ def handel_error(title, message, timeout=3000):
 	xbmc.executebuiltin(cmd)
 	sys.exit()
 
+def dialog_file_browser(title, mask='', path='/'):
+	dialog = xbmcgui.Dialog()
+	return dialog.browseSingle(1, title, 'files', mask, False, False, path)
+	
+
 def dialog_input(title, default=''):
 	kb = xbmc.Keyboard(default, title, False)
 	kb.doModal()
