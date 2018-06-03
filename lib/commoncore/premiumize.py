@@ -107,10 +107,8 @@ def get_download(link):
 	return response
 
 def check_hashes(hashes):
-	if hashes:
-		uri = '/api/torrent/checkhashes'
-		return PremiumizeV2.request(uri, query={"hashes": hashes})
-	else: return []
+	uri = '/api/torrent/checkhashes'
+	return PremiumizeV2.request(uri, query={"hashes": hashes})
 
 def check_items(items):
 	uri = '/api/cache/check'
@@ -179,17 +177,7 @@ def clear_transfers():
 	uri = "/api/transfer/clearfinished"
 	return PremiumizeV2.request(uri)
 
-def delete_transfer(transfer_id):
-	uri = "/api/transfer/delete"
-	return PremiumizeV2.request(uri, query={"id": transfer_id})
 
-def clear_torrent(hash, id):
-	transfers = list_transfers()
-	for t in transfers['transfers']:
-		if t['folder_id'] == id or t['file_id'] == id:
-			transfer_id = t['id']
-			r = delete_transfer(transfer_id)
-			break
 
 
 

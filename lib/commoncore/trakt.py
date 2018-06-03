@@ -176,19 +176,15 @@ class TraktAPI(BASE_TraktAPI):
 	
 	def handel_error(self, error, response, request_args, request_kwargs):
 		traceback.print_stack()
-		kodi.log(error)
 		if response is None:
-			kodi.handel_error("Trakt Error", "See log file")
+			kodi.notify("Trakt Error", "See log file")
 			raise error
-			
 		elif response.status_code > 499:
-			kodi.handel_error("Temporary Trakt Error", "%s: %s" % (response.status_code, ERROR_CODES[response.status_code]))
-			#raise TraktException("Temporary Trakt Error <<%s>>: %s" % (response.status_code, ERROR_CODES[response.status_code]))
-
+			kodi.notify("Temporary Trakt Error", "%s: %s" % (response.status_code, ERROR_CODES[response.status_code]))
+			raise TraktException("Temporary Trakt Error <<%s>>: %s" % (response.status_code, ERROR_CODES[response.status_code]))
 		else:
-			kodi.handel_error("Trakt Error", "%s: %s" % (response.status_code, ERROR_CODES[response.status_code]))
+			kodi.notify("Trakt Error", "%s: %s" % (response.status_code, ERROR_CODES[response.status_code]))
 			raise TraktException("Trakt Error <<%s>>: %s" % (response.status_code, ERROR_CODES[response.status_code]))
-
 	
 	def process_response(self, url, response, cache_limit,request_args, request_kwargs):
 		total_pages = int(response.headers['X-Pagination-Page-Count']) if 'X-Pagination-Page-Count' in response.headers else 1
@@ -249,7 +245,7 @@ def _check_activities():
 
 	for media in ['movies', 'shows', 'seasons', 'episodes', 'lists']:
 		results[media] = {}
-		for activity in ['watched_at', 'watchlisted_at', 'updated_at', 'collected_at', 'commented_at']:
+		for activity in ['watched_at', 'watchlisted_at', 'updated_at', 'collected_at']:
 			if not response: return results
 			if activity in response[media]:
 				ts = response[media][activity]
@@ -356,8 +352,9 @@ def get_season_watched(id):
 		watched[r['episode']['season']].append(r['episode']['number'])
 	return watched
 
+
 def is_inprogress(media, trakt_id):
-	if trakt.query("SELECT 1 FROM playback_states WHERE media=? AND watched=0 AND ( current * 1.0 > 0 ) AND trakt_id=?", [media, trakt_id]):
+	if trakt.query("SELECT 1 FROM playback_states WHERE media=? AND watched=0 AND trakt_id=?", [media, trakt_id]):
 		return True
 	else:
 		return False
@@ -457,7 +454,7 @@ def get_last_epidode(id):
 	return trakt.request(uri, query={'extended': 'full'})
 
 def get_inprogress_shows():
-	return trakt.query("SELECT ids, metadata FROM playback_states WHERE media='episode' AND watched = 0 AND ( current * 1.0 > 0 ) ORDER BY ts DESC")
+	return trakt.query("SELECT ids, metadata FROM playback_states WHERE media='episode' AND watched = 0 ORDER BY ts DESC")
 
 
 """ Season Functions"""
@@ -533,7 +530,7 @@ def get_recommended_movies():
 	return trakt.request(uri, query={'extended': 'full'}, auth=True, cache_limit=EXPIRE_TIMES.DAY)
 
 def get_inprogress_movies():
-	return trakt.query("SELECT ids, metadata FROM playback_states WHERE media='movie' AND watched = 0 AND ( current * 1.0 > 0 ) ORDER BY ts DESC")
+	return trakt.query("SELECT ids, metadata FROM playback_states WHERE media='movie' AND watched = 0 ORDER BY ts DESC")
 
 
 """ LIST Functions """

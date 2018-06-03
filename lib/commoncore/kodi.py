@@ -244,6 +244,9 @@ def exit():
 	return exit
 
 def kodi_json_request(method, params, id=1):
+	if type(params) is not dict:
+		from ast import literal_eval
+		params = literal_eval(params)
 	jsonrpc =  json.dumps({ "jsonrpc": "2.0", "method": method, "params": params, "id": id })
 	response = json.loads(xbmc.executeJSONRPC(jsonrpc))
 	return response
