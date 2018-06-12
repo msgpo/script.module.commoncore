@@ -480,7 +480,7 @@ def add_menu_item(query, infolabels, total_items=0, icon='', image='', fanart=''
 
 
 
-def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='', replace_menu=True, menu=None, format=None, random_url=True):
+def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='', replace_menu=True, menu=None, format=None, random_url=True, in_progress=False):
 	if 'display' in infolabels: infolabels['title'] = infolabels['display']
 	if not fanart:
 		fanart = get_path() + '/fanart.jpg'
