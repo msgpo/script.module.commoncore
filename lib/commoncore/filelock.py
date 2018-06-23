@@ -352,7 +352,10 @@ class WindowsFileLock(BaseFileLock):
             try:
                 msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
             except (IOError, OSError):
-                os.close(fd)
+                try:
+                    os.close(fd)
+                except: 
+                    fd.close()
             else:
                 self._lock_file_fd = fd
         return None
@@ -361,8 +364,10 @@ class WindowsFileLock(BaseFileLock):
         fd = self._lock_file_fd
         self._lock_file_fd = None
         msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
-        os.close(fd)
-
+        try:
+            os.close(fd)
+        except: 
+            fd.close()
         try:
             os.remove(self._lock_file)
         # Probably another instance of the application

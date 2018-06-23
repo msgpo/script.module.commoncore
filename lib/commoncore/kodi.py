@@ -495,6 +495,12 @@ def add_video_item(query, infolabels, total_items=0, icon='', image='', fanart='
 	try:
 		if cast is not None: listitem.setCast(cast)
 	except: pass
+	#watched = False
+	#if 'playcount' in infolabels and int(infolabels['playcount']) > 0: watched = True 
+	#if not watched and in_progress:
+	#	listitem.setProperty('totaltime', '999999')
+	#	listitem.setProperty('resumetime', "1")
+	#	infolabels['playcount'] = 0
 	listitem.setInfo('video', infolabels)
 	listitem.setProperty('IsPlayable', 'true')
 	if MC_NATIVE:
