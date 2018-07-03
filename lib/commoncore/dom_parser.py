@@ -170,6 +170,8 @@ class DomObject(object):
 		return lst[0]
 
 	def content(self, name=u""):
+		if not name:
+			name = re.search("<(\w+)[^>]*>", self._html).group(1)
 		lst = self._parse_dom(self._html, name, {}, False)
 		if len(lst) == 0 : return u""
 		return lst[0].html()
@@ -218,7 +220,7 @@ class DomObject(object):
 			else:
 				lst2 = []
 				for match in lst:
-					temp = self._getDOMContent(item, name, match, ret).strip()
+					temp = self._getDOMContent(item, name, match, ret) #.strip()
 					item = item[item.find(temp, item.find(match)) + len(temp):]
 					lst2.append(temp)
 				lst = lst2
