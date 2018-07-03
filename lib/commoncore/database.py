@@ -73,6 +73,7 @@ class BASEDatabase:
 	def handel_error(self, error):
 		traceback.print_stack()
 		raise error
+	
 	def prepaire_sql(self, SQL):
 		if regex_replace.search(SQL): SQL = 'INSERT OR ' + SQL
 		return SQL
