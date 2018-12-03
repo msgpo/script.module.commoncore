@@ -203,7 +203,7 @@ def add_magnet_url(magnet_url):
 
 def add_torrent_url(torrent_url):
 	uri = '/torrents/addTorrent'
-	response = requests.get(torrent_url, stream=True)
+	response = requests.get(torrent_url, headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36"}, stream=True)
 	if response.status_code == requests.codes.ok or response.status_code == 201:
 		data = b''
 		for block in response.iter_content(chunk_size=8096):

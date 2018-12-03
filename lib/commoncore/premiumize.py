@@ -172,6 +172,9 @@ def create_transfer(url, status=False):
 		return response['status']
 	else:
 		return response
+
+def clear_torrent(hash, id):
+	delete_item(id)
 	
 def clear_transfers():
 	uri = "/api/transfer/clearfinished"
