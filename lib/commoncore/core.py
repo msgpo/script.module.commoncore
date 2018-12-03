@@ -92,6 +92,20 @@ def format_trailer(trailer_url):
 	if match:
 		return 'plugin://plugin.video.youtube/?action=play_video&videoid=%s' % (match.group(1))	
 
+def get_query(media, q):
+	query = kodi.get_property('search.query.refesh') if kodi.get_property('search.query.refesh') else q
+	if query:
+		kodi.clear_property('search.query')
+		kodi.clear_property('search.query.refesh')
+	else:
+		query = kodi.dialog_input("Search for %s" % media)
+	if query is None or query is False: 
+		kodi.clear_property("search.query")
+		return
+	kodi.set_property('search.query', query)
+	return query
+
+
 def make_people(item):
 	people={}
 	if 'people' in item: people['cast']=[actor['name'] for actor in item['people']['actors'] if actor['name']]
