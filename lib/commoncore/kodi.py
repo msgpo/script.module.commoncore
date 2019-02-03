@@ -313,6 +313,9 @@ def dialog_file_browser(title, mask='', path='/'):
 	dialog = xbmcgui.Dialog()
 	return dialog.browseSingle(1, title, 'files', mask, False, False, path)
 	
+def dialog_directory_browser(title, path=''):
+	dialog = xbmcgui.Dialog()
+	return dialog.browseSingle(0, title, path)
 
 def dialog_input(title, default=''):
 	kb = xbmc.Keyboard(default, title, False)
@@ -409,6 +412,8 @@ def eod(view_id=None, content=None, clear_search=False):
 		content = "tvshows"
 	elif view_id == DEFAULT_VIEWS.MOVIES:
 		content = 'movies'
+	elif view_id == DEFAULT_VIEWS.GAMES:
+		content = 'videos'
 	if view_id is not None:
 		set_view(view_id, content)
 	_eod()

@@ -27,7 +27,7 @@ from commoncore import kodi
 from commoncore.enum import enum
 from commoncore.filelock import FileLock
 from commoncore.BeautifulSoup import BeautifulSoup
-
+from commoncore import dom_parser
 	
 vfs = kodi.vfs
 CACHE = vfs.join(kodi.get_profile(), 'API_CACHE')
@@ -116,6 +116,8 @@ class BASE_API():
 				return json.loads(response)
 		elif self.default_return_type == 'xml':
 			return BeautifulSoup(response)
+		elif self.default_return_type == 'html_dom':
+			return dom_parser.parse_html(response)
 		return response
 	
 	def get_response(self, response):	
