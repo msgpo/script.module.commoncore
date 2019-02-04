@@ -412,6 +412,8 @@ def eod(view_id=None, content=None, clear_search=False):
 		content = "tvshows"
 	elif view_id == DEFAULT_VIEWS.MOVIES:
 		content = 'movies'
+	elif view_id == DEFAULT_VIEWS.GAMES:
+		content = 'videos'
 	if view_id is not None:
 		set_view(view_id, content)
 	_eod()

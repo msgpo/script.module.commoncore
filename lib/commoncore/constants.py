@@ -32,10 +32,11 @@ except:
 	
 DEFAULT_VIEWS = enum(
 	DEFAULT= 550, 
-	LIST= int(kodi.get_setting('default_list_view')) if kodi.get_setting('default_list_view') else 550, 
-	MOVIES= int(kodi.get_setting('default_movie_view')) if kodi.get_setting('default_movie_view') else 550, 
-	SHOWS= int(kodi.get_setting('default_show_view')) if kodi.get_setting('default_show_view') else 550, 
-	SEASONS= int(kodi.get_setting('default_season_view')) if kodi.get_setting('default_season_view') else 550, 
-	EPISODES= int(kodi.get_setting('default_episode_view')) if kodi.get_setting('default_episode_view') else 550,
-	STREAMS= int(kodi.get_setting('default_stream_view')) if kodi.get_setting('default_stream_view') else 550, 
+	LIST = int(kodi.get_setting('default_list_view')) if kodi.get_setting('default_list_view') else 550, 
+	MOVIES = int(kodi.get_setting('default_movie_view')) if kodi.get_setting('default_movie_view') else 550, 
+	SHOWS = int(kodi.get_setting('default_show_view')) if kodi.get_setting('default_show_view') else 550, 
+	SEASONS = int(kodi.get_setting('default_season_view')) if kodi.get_setting('default_season_view') else 550, 
+	EPISODES = int(kodi.get_setting('default_episode_view')) if kodi.get_setting('default_episode_view') else 550,
+	STREAMS = int(kodi.get_setting('default_stream_view')) if kodi.get_setting('default_stream_view') else 550, 
+	GAMES = int(kodi.get_setting('default_game_view')) if kodi.get_setting('default_game_view') else 550, 
 )
