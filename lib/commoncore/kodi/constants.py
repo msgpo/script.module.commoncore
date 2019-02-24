@@ -37,8 +37,12 @@ def set_setting(k, v, addon_id=None):
 
 try:
 	HANDLE_ID = int(sys.argv[1])
+	ADDON_URL = sys.argv[0]
+	PLUGIN_URL = sys.argv[0] + sys.argv[2]
 except:
 	HANDLE_ID = -1
+	ADDON_URL = 'plugin://%s' % sys.argv[0]
+	PLUGIN_URL = 'plugin://%s' % sys.argv[0]
 	
 DEFAULT_VIEWS = enum(
 	DEFAULT= 550, 

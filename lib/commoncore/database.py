@@ -16,8 +16,8 @@
 *'''
 
 import re
-import kodi
-import filelock
+from commoncore import kodi
+from commoncore import filelock
 import traceback
 
 class DatabaseException(Exception):
@@ -90,7 +90,7 @@ class BASEDatabase:
 				return rows[0]
 			else:
 				return rows
-		except Exception, e:
+		except Exception as e:
 			if self.quiet is False or quiet is False and not self.ignore_errors(e):
 				self.handel_error(DatabaseException("Database Error: %s" % e))
 				kodi.log("Database Error: %s" % e)
@@ -110,7 +110,7 @@ class BASEDatabase:
 				return rows[0]
 			else:
 				return rows
-		except Exception, e:
+		except Exception as e:
 			if self.quiet is False or quiet is False and not self.ignore_errors(e):
 				self.handel_error(DatabaseException("Database Error: %s" % e))
 				kodi.log("Database Error: %s" % e)
@@ -126,7 +126,7 @@ class BASEDatabase:
 				self.lastrowid = self.DBC.lastrowid
 			except:
 				self.lastrowid = None
-		except Exception, e:
+		except Exception as e:
 			if self.quiet is False or quiet is False and not self.ignore_errors(e):
 				self.handel_error(DatabaseException("SQLite Database Error: %s" % e))
 				kodi.log("Database Error: %s" % e)
@@ -135,7 +135,7 @@ class BASEDatabase:
 		SQL = self.prepaire_sql(SQL)
 		try:
 			self.DBC.executemany(SQL, data)
-		except Exception, e:
+		except Exception as e:
 			if self.quiet is False or quiet is False and not self.ignore_errors(e):
 				self.handel_error(DatabaseException("Database Error: %s" % e))
 				kodi.log("Database Error: %s" % e)
@@ -184,7 +184,7 @@ class SQLiteDatabase(BASEDatabase):
 				else:
 					self.db_lock.release()
 					return rows
-			except Exception, e:
+			except Exception as e:
 				if self.quiet is False or quiet is False and not self.ignore_errors(e):
 					self.handel_error(DatabaseException("SQLite Database Error: %s" % e))
 					kodi.log("SQLite Database Error: %s" % e)
@@ -213,7 +213,7 @@ class SQLiteDatabase(BASEDatabase):
 				else:
 					self.db_lock.release()
 					return rows
-			except Exception, e:
+			except Exception as e:
 				if self.quiet is False or quiet is False and not self.ignore_errors(e):
 					self.handel_error(DatabaseException("SQLite Database Error: %s" % e))
 					kodi.log("SQLite Database Error: %s" % e)
@@ -233,7 +233,7 @@ class SQLiteDatabase(BASEDatabase):
 					self.lastrowid = self.DBC.lastrowid
 				except:
 					self.lastrowid = None
-			except Exception, e:
+			except Exception as e:
 				if self.quiet is False or quiet is False and not self.ignore_errors(e):
 					self.handel_error(DatabaseException("SQLite Database Error: %s" % e))
 					kodi.log("SQLite Database Error: %s" % e)
@@ -245,7 +245,7 @@ class SQLiteDatabase(BASEDatabase):
 		with self.db_lock:
 			try:
 				self.DBC.executemany(SQL, data)
-			except Exception, e:
+			except Exception as e:
 				if self.quiet is False or quiet is False and not self.ignore_errors(e):
 					self.handel_error(DatabaseException("SQLite Database Error: %s" % e))
 					kodi.log("SQLite Database Error: %s" % e)
@@ -271,7 +271,7 @@ class SQLiteDatabase(BASEDatabase):
 		try:
 			self.DBC = self.DBH.cursor()
 			self.__connected = True	
-		except Exception, e:
+		except Exception as e:
 			self.handel_error(DatabaseException("SQLite Database Error: %s" % e))
 			kodi.log("SQLite Database Error: %s" % e)
 
@@ -305,7 +305,7 @@ class MySQLDatabase(BASEDatabase):
 			self.DBH = database.connect(**dsn)
 			self.DBC = self.DBH.cursor()
 			self.__connected = True
-		except Exception, e:
+		except Exception as e:
 			self.handel_error(DatabaseException("MySQL Database Error: %s" % e))
 		
 
@@ -324,7 +324,7 @@ class MySQLDatabase(BASEDatabase):
 				self.lastrowid = self.DBC.lastrowid
 			except:
 				self.lastrowid = None
-		except Exception, e:
+		except Exception as e:
 			if self.quiet is False or quiet is False and not self.ignore_errors(e):
 				self.handel_error(DatabaseException("MySQL Database Error: %s" % e))
 
@@ -332,7 +332,7 @@ class MySQLDatabase(BASEDatabase):
 		try:
 			SQL = SQL.replace('?', '%s')
 			self.DBC.executemany(SQL, data)
-		except Exception, e:
+		except Exception as e:
 			if self.quiet is False or quiet is False and not self.ignore_errors(e):
 				self.handel_error(DatabaseException("MySQL Database Error: %s" % e))
 
@@ -348,7 +348,7 @@ class MySQLDatabase(BASEDatabase):
 				return rows[0]
 			else:
 				return rows
-		except Exception, e:
+		except Exception as e:
 			if self.quiet is False or quiet is False and not self.ignore_errors(e):
 				self.handel_error(DatabaseException("MySQL Database Error: %s" % e))
 		
@@ -373,7 +373,7 @@ class MySQLDatabase(BASEDatabase):
 						d[col] = row[idx]
 					set.append(d)
 				return set
-		except Exception, e:
+		except Exception as e:
 			if self.quiet is False or quiet is False and not self.ignore_errors(e):
 				self.handel_error(DatabaseException("MySQL Database Error: %s" % e))
 

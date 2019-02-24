@@ -94,21 +94,6 @@ def clear_property(k, id=None):
 	if id is None: id = get_id()
 	get_window().clearProperty('%s.%s' % (id, k) + k)
 
-def parse_query(query, q={'mode': 'main'}):
-	if query.startswith('?'): query = query[1:]
-	queries = urlparse.parse_qs(query)
-	for key in queries:
-		if len(queries[key]) == 1:
-			q[key] = queries[key][0]
-		else:
-			q[key] = queries[key]
-	return q
-try:
-	args = parse_query(sys.argv[2])
-	mode = args['mode']
-except:
-	args = {"mode": "main"}
-
 def get_plugin_url(queries, addon_id=None):
 	for k,v in queries.items():
 		if type(v) is dict:
@@ -122,6 +107,51 @@ def get_plugin_url(queries, addon_id=None):
 		query = urlencode(queries)
 	addon_id = sys.argv[0] if addon_id is None else addon_id
 	return addon_id + '?' + query
+
+def kodi_json_request(method, params, id=1):
+	if type(params) is not dict:
+		from ast import literal_eval
+		params = literal_eval(params)
+	jsonrpc =  json.dumps({ "jsonrpc": "2.0", "method": method, "params": params, "id": id })
+	response = json.loads(xbmc.executeJSONRPC(jsonrpc))
+	return response
+
+def run_command(cmd):
+	return xbmc.executebuiltin(cmd)
+
+def build_plugin_url(queries, addon_id=None):
+	return get_plugin_url(queries, addon_id)
+
+def execute_url(plugin_url):
+	cmd = 'XBMC.RunPlugin(%s)' % (plugin_url) 
+	run_command(cmd)
+
+def execute_script(script):
+	cmd = 'XBMC.RunScript(%s)' % (script)
+	run_command(cmd)
+
+def execute_addon(addon_id):
+	cmd = 'XBMC.RunAddon(%s)' % addon_id
+	run_command(cmd) 
+
+def navigate_to(query):
+	plugin_url = build_plugin_url(query)
+	go_to_url(plugin_url)
+
+def go_to_url(plugin_url):
+	cmd = "XBMC.Container.Update(%s)" % plugin_url
+	xbmc.executebuiltin(cmd)
+
+def install_addon(addon_id):
+	cmd = "RunPlugin(plugin://%s)" % addon_id
+	run_command(cmd)
+
+def play_url(plugin_url, isFolder=False):
+	if isFolder:
+		cmd = 'XBMC.PlayMedia(%s,True)' % (plugin_url)
+	else:
+		cmd = 'XBMC.PlayMedia(%s)' % (plugin_url)
+	run_command(cmd)
 
 def get_current_view():
 	window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
@@ -147,7 +177,7 @@ def _eod(cache_to_disc=True):
 	xbmcplugin.endOfDirectory(HANDLE_ID, cacheToDisc=cache_to_disc)
 
 def eod(view_id=None, content=None, clear_search=False):
-	#from constants import DEFAULT_VIEWS
+
 	if view_id in [DEFAULT_VIEWS.SHOWS, DEFAULT_VIEWS.SEASONS, DEFAULT_VIEWS.EPISODES]:
 		content = "tvshows"
 	elif view_id == DEFAULT_VIEWS.MOVIES:

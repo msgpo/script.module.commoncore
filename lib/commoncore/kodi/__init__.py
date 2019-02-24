@@ -16,7 +16,7 @@
 *'''
 
 import importlib
-__all__ = ['addon', 'constants', 'dispatcher', 'enum', 'logger', 'runner', 'ui', 'strings']
+__all__ = ['addon', 'constants', 'dispatcher', 'enum', 'logger', 'runner', 'ui', 'strings', 'vfs']
 for name in __all__:
 	""" loop through each module in __all__
 	    import them serially and copy their contents to globals

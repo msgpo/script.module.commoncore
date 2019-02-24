@@ -16,36 +16,48 @@
 *'''
 
 import sys
+import json
 from .addon import get_setting, set_property, open_settings, get_name, get_id
 from .logger import log
 try:
-	from urllib.parse import urlparse
-	from urllib.parse import urlencode
+	from urllib.parse import parse_qs
 except ImportError:
-	from urllib import urlencode
-	from urlparse import urlparse
+	from urlparse.urlparse import parse_qs
 
-mode='main'
-args = {}
 __dispatcher = {}
 __args = {}
 __kwargs = {}
 
+def parse_query(query, q={'mode': 'main'}):
+	if query.startswith('?'): query = query[1:]
+	queries = parse_qs(query)
+	for key in queries:
+		if len(queries[key]) == 1:
+			q[key] = queries[key][0]
+		else:
+			q[key] = queries[key]
+	return q
 try:
 	args = parse_query(sys.argv[2])
 	mode = args['mode']
 except:
-	args = {"mode": "main"}
+	mode='main'
+	args = {"mode": mode}
 
-try:
-	HANDLE_ID = int(sys.argv[1])
-	ADDON_URL = sys.argv[0]
-	PLUGIN_URL = sys.argv[0] + sys.argv[2]
-except:
-	HANDLE_ID = -1
-	ADDON_URL = 'plugin://%s' % get_name()
-	PLUGIN_URL = 'plugin://%s' % get_name()
-
+def arg(k, default=None, decode=None):
+	return_val = default
+	if k in args:
+		v = args[k]
+		if v == '': return default
+		if v == 'None': return default
+	else:
+		return default
+	if decode == 'json':
+		return json.loads(v)
+	return v
+	
+def get_arg(k, default=None):
+	return arg(k, default)
 
 def _register(mode, target, args=(), kwargs={}):
 	if isinstance(mode, list):

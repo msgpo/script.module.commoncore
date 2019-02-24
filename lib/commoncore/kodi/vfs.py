@@ -37,7 +37,7 @@ def confirm(msg='', msg2='', msg3=''):
 def _open(path, mode='r'):
 	try:
 		return xbmcvfs.File(path, mode)
-	except Exception, e:
+	except Exception as e:
 		xbmc.log('******** VFS error: %s' % e)
 		return False
 
@@ -50,7 +50,7 @@ def read_file(path, soup=False, json=False, mode=''):
 		content=file.read()
 		file.close()
 		if soup:
-			from BeautifulSoup import BeautifulSoup, Tag, NavigableString
+			from commoncore.BeautifulSoup import BeautifulSoup, Tag, NavigableString
 			soup = BeautifulSoup(content)
 			return soup
 		elif json:
@@ -61,7 +61,7 @@ def read_file(path, soup=False, json=False, mode=''):
 			return json.loads(content)
 		else:
 			return content
-	except IOError, e:
+	except IOError as e:
 		xbmc.log('******** VFS error: %s' % e)
 		return None
 
@@ -78,7 +78,7 @@ def write_file(path, content, mode='w', json=False):
 		file.write(content)
 		file.close()
 		return True
-	except IOError, e:
+	except IOError as e:
 		xbmc.log('******** VFS error: %s' % e)
 		return False
 
@@ -96,7 +96,7 @@ def touch(path):
 		else:
 			_open(path, 'w')
 			return True
-	except Exception, e:
+	except Exception as e:
 		xbmc.log('******** VFS error: %s' % e)
 		return False
 
@@ -156,7 +156,7 @@ def ls(path, pattern=None, inlcude_path=False):
 			return [folders, files]
 		else:
 			return xbmcvfs.listdir(path)
-	except Exception, e:
+	except Exception as e:
 		xbmc.log('******** VFS error: %s' % e)
 		return False
 
@@ -168,13 +168,13 @@ def mkdir(path, recursive=False):
 	if recursive:
 		try:
 			return xbmcvfs.mkdirs(path)
-		except Exception, e:
+		except Exception as e:
 			xbmc.log('******** VFS error: %s' % e)
 			return False
 	else:
 		try:
 			return xbmcvfs.mkdir(path)
-		except Exception, e:
+		except Exception as e:
 			xbmc.log('******** VFS error: %s' % e)
 			return False
 
@@ -189,7 +189,7 @@ def rmdir(path, quiet=False):
 		if not confirm(msg, msg2, path): return False
 	try:		
 		xbmcvfs.rmdir(path)
-	except Exception, e:
+	except Exception as e:
 		xbmc.log('******** VFS error: %s' % e)
 
 def rm(path, quiet=False, recursive=False):
@@ -205,7 +205,7 @@ def rm(path, quiet=False, recursive=False):
 	if not recursive:
 		try:
 			xbmcvfs.delete(path)
-		except Exception, e:
+		except Exception as e:
 			xbmc.log('******** VFS error: %s' % e)
 	else:
 		dirs,files = ls(path)
@@ -213,14 +213,14 @@ def rm(path, quiet=False, recursive=False):
 			r = os.path.join(xbmc.translatePath(path), f)
 			try:
 				xbmcvfs.delete(r)
-			except Exception, e:
+			except Exception as e:
 				xbmc.log('******** VFS error: %s' % e)
 		for d in dirs:
 			subdir = os.path.join(xbmc.translatePath(path), d)
 			rm(subdir, quiet=True, recursive=True)
 		try:			
 			xbmcvfs.rmdir(path)
-		except Exception, e:
+		except Exception as e:
 			xbmc.log('******** VFS error: %s' % e)
 	return True
 
