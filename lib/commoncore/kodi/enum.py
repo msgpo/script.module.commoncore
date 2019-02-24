@@ -17,8 +17,8 @@
 
 def enum(*sequential, **named):
 	enums = dict(zip(sequential, range(len(sequential))), **named)
-	forward = dict((key, value) for key, value in enums.iteritems())
-	reverse = dict((value, key) for key, value in enums.iteritems())
+	forward = dict((key, value) for key, value in enums.items())
+	reverse = dict((value, key) for key, value in enums.items())
 	enums['f_map'] = forward
 	enums['r_map'] = reverse
 	return type('Enum', (), enums)

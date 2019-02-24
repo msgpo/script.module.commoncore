@@ -15,15 +15,11 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *'''
 
-import kodi
+from .addon import get_name, get_version
+from .strings import py2_encode
 from xbmc import log as __log
 from xbmc import LOGDEBUG, LOGERROR, LOGFATAL, LOGINFO, LOGNONE, LOGNOTICE, LOGSEVERE, LOGWARNING
 
 def log(msg, level=LOGNOTICE):
-	try:
-		if isinstance(msg, unicode):
-			msg = msg.encode('utf-8')
-		__log('%s: %s' % (kodi.get_name(), msg), level)
-	except Exception as e:
-		try: __log('Logging Failure: %s' % (e), level)
-		except: pass  # just give up
+	msg = py2_encode(str(msg))
+	__log("%s v%s: %s" % (get_name(), get_version(), msg), level)
