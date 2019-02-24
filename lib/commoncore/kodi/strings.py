@@ -3,6 +3,11 @@ import inspect
 
 PY2 = sys.version_info[0] == 2  #: ``True`` for Python 2
 
+def stringify(obj):
+	if not isinstance(obj, str):
+		obj = str(obj)
+	return obj
+
 def py2_encode(s, encoding='utf-8'):
 	"""
 	Encode Python 2 ``unicode`` to ``str``

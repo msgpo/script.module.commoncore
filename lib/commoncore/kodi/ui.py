@@ -18,7 +18,7 @@ import sys
 import json
 import xbmc
 import xbmcgui
-from kodi import vfs
+from . import vfs
 from .addon import get_path
 from .constants import *
 
@@ -27,45 +27,56 @@ try:
 except ImportError:
 	from urllib import urlencode
 
-def dialog_ok(title="", m1="", m2="", m3=""):
-	dialog = xbmcgui.Dialog()
-	dialog.ok(title, m1, m2, m3)
-
 def open_busy_dialog():
 	xbmc.executebuiltin( "ActivateWindow(busydialog)" )
 
 def close_busy_dialog():
 	xbmc.executebuiltin( "Dialog.Close(busydialog)" )
 
-def notify(title, message, timeout=1500, image=vfs.join(get_path(), 'icon.png')):
-	cmd = "XBMC.Notification(%s, %s, %s, %s)" % (title.encode('utf-8'), message.encode('utf-8'), timeout, image)
+def notify(heading, message, timeout=1500, image=vfs.join(get_path(), 'icon.png')):
+	cmd = "XBMC.Notification(%s, %s, %s, %s)" % (heading, message, timeout, image)
 	xbmc.executebuiltin(cmd)
 
-def handel_error(title, message, timeout=3000):
+def handel_error(heading, message, timeout=3000):
 	image=vfs.join(ARTWORK, 'error.png')
-	cmd = "XBMC.Notification(%s, %s, %s, %s)" % (title.encode('utf-8'), message.encode('utf-8'), timeout, image)
+	cmd = "XBMC.Notification(%s, %s, %s, %s)" % (heading, message, timeout, image)
 	xbmc.executebuiltin(cmd)
 	sys.exit()
 
-def dialog_file_browser(title, mask='', path='/'):
+def dialog_ok(heading="", m1="", m2="", m3=""):
 	dialog = xbmcgui.Dialog()
-	return dialog.browseSingle(1, title, 'files', mask, False, False, path)
+	return dialog.ok(heading, m1, m2, m3)
 
-def dialog_directory_browser(title, path=''):
+def dialog_info(listitem):
+	return xbmcgui.Dialog().info(listitem)
+
+def dialog_confirm(heading="", m1="", m2="", m3="", no="", yes="", delay=0):
 	dialog = xbmcgui.Dialog()
-	return dialog.browseSingle(0, title, path)	
+	return dialog.yesno(heading, m1, m2, m3, no, yes, delay)
 
-def dialog_input(title, default=''):
-	kb = xbmc.Keyboard(default, title, False)
-	kb.doModal()
-	if (kb.isConfirmed()):
-		text = kb.getText()
-		if text != '':
-			return text
-	return None	
+def dialog_input(heading, default='', type=xbmcgui.INPUT_ALPHANUM, option=0, delay=0):
+	if type not in [xbmcgui.INPUT_ALPHANUM, xbmcgui.INPUT_NUMERIC, xbmcgui.INPUT_DATE, xbmcgui.INPUT_TIME, xbmcgui.INPUT_IPADDRESS, xbmcgui.INPUT_PASSWORD]: type = xbmcgui.INPUT_ALPHANUM
+	dialog = xbmcgui.Dialog()
+	return dialog.input(heading, default, type, option, delay)
 
-def dialog_textbox(heading, content):
-		TextBox().show(heading, content)
+def dialog_select(heading, options, delay=0, preselect=-1, detailed=False):
+	dialog = xbmcgui.Dialog()
+	index = dialog.select(heading, options, autoclose=delay, preselect=preselect, useDetails=detailed)
+	if index >= 0:
+		return index
+	else: 
+		return None
+
+def dialog_multiselect(heading, options, delay=0, preselect=[], detailed=False):
+	dialog = xbmcgui.Dialog()
+	response = dialog.multiselect(heading, options, autoclose=delay, preselect=preselect, useDetails=detailed)
+	if isinstance(response, list) and len(response) > 0:
+		return response
+	return None
+
+def dialog_textbox(heading, message, usemono=False):
+	dialog = xbmcgui.Dialog()
+	return dialog.textviewer(heading, message, usemono)
 
 def dialog_context(options):
 	dialog = xbmcgui.Dialog()
@@ -73,16 +84,11 @@ def dialog_context(options):
 	if index >= 0:
 		return index
 	else: 
-		return False
+		return None
 
-def dialog_select(heading, options):
-	dialog = xbmcgui.Dialog()
-	index = dialog.select(heading, options)
-	if index >= 0:
-		return index
-	else: 
-		return False
-
+def dialog_browser(heading, type=BROWSER_TYPES.DIRECTORY, shares="", mask="", thumbs=False, force_folder=True, default="", multiple=False):
+	if shares not in ["", "programs", "video", "pictures", "files", "games", "local"]: shares = ""
+	return xbmcgui.Dialog().browse(type, heading, shares, mask, thumbs, force_folder, default, multiple)
 
 class ContextMenu:
 	def __init__(self):

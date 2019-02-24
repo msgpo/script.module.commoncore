@@ -18,6 +18,7 @@
 import sys
 import xbmcaddon
 from .enum import enum
+from . import vfs
 __addon = xbmcaddon.Addon()
 __get_setting = __addon.getSetting
 __set_setting = __addon.setSetting
@@ -43,6 +44,9 @@ except:
 	HANDLE_ID = -1
 	ADDON_URL = 'plugin://%s' % sys.argv[0]
 	PLUGIN_URL = 'plugin://%s' % sys.argv[0]
+
+PLATFORM = sys.platform
+ARTWORK = vfs.join(__addon.getAddonInfo('path'), 'resources/artwork')	
 	
 DEFAULT_VIEWS = enum(
 	DEFAULT= 550, 
@@ -53,3 +57,5 @@ DEFAULT_VIEWS = enum(
 	EPISODES= int(get_setting('default_episode_view')) if get_setting('default_episode_view') else 550,
 	STREAMS= int(get_setting('default_stream_view')) if get_setting('default_stream_view') else 550, 
 )
+
+BROWSER_TYPES = enum(DIRECTORY=0, FILE=1, IMAGE=2, WRITEABLEDIRECTORY=3)

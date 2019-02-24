@@ -14,12 +14,11 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *'''
-
+from . import strings
 from .addon import get_name, get_version
-from .strings import py2_encode
 from xbmc import log as __log
 from xbmc import LOGDEBUG, LOGERROR, LOGFATAL, LOGINFO, LOGNONE, LOGNOTICE, LOGSEVERE, LOGWARNING
 
 def log(msg, level=LOGNOTICE):
-	msg = py2_encode(str(msg))
+	msg = strings.py2_encode(strings.stringify(msg))
 	__log("%s v%s: %s" % (get_name(), get_version(), msg), level)
