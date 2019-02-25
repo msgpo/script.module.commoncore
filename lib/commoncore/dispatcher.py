@@ -15,7 +15,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *'''
 
-from logging import log
+from .kodi.logger import log
 
 class FunctionDispatcher():
 	__functions = {}
