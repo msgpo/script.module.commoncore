@@ -19,7 +19,7 @@ import json
 import xbmc
 import xbmcgui
 from . import vfs
-from .addon import get_path
+from .addon import get_path, get_name
 from .constants import *
 
 try:
@@ -42,6 +42,11 @@ def handel_error(heading, message, timeout=3000):
 	cmd = "XBMC.Notification(%s, %s, %s, %s)" % (heading, message, timeout, image)
 	xbmc.executebuiltin(cmd)
 	sys.exit()
+
+def raise_error(self, title, m1='', m2=''):
+	dialog = xbmcgui.Dialog()
+	dialog.ok("%s ERROR!" % get_name(), str(title), str(m1), str(m2))
+
 
 def dialog_ok(heading="", m1="", m2="", m3=""):
 	dialog = xbmcgui.Dialog()
@@ -89,6 +94,39 @@ def dialog_context(options):
 def dialog_browser(heading, type=BROWSER_TYPES.DIRECTORY, shares="", mask="", thumbs=False, force_folder=True, default="", multiple=False):
 	if shares not in ["", "programs", "video", "pictures", "files", "games", "local"]: shares = ""
 	return xbmcgui.Dialog().browse(type, heading, shares, mask, thumbs, force_folder, default, multiple)
+
+
+class ProgressBar(xbmcgui.DialogProgress):
+	def __init__(self, *args, **kwargs):
+		xbmcgui.DialogProgress.__init__(self, *args, **kwargs)
+		self._silent = False
+		self._index = 0
+		self._total = 0
+		self._percent = 0
+		
+	def new(self, heading, total):
+		if not self._silent:
+			self._index = 0
+			self._total = total
+			self._percent = 0
+			self._heading = heading
+			self.create(heading)
+			self.update(0, heading, '')
+			
+	def update_subheading(self, subheading, subheading2="", percent=False):
+		if percent: self._percent = int(percent)
+		self.update(self._percent, self._heading, subheading, subheading2)
+		
+	def next(self, subheading, subheading2=""):
+		if not self._silent:
+			self._index = self._index + 1
+			self._percent = int(self._index * 100 / self._total)
+			self.update(self._percent, self._heading, subheading, subheading2)
+	
+	def is_canceled(self):
+		return self.iscanceled()
+
+
 
 class ContextMenu:
 	def __init__(self):
