@@ -18,9 +18,9 @@
 import sys
 import re
 import json
-import kodi
 import time
-from constants import BASE_FANART_URL
+from commoncore import kodi
+from commoncore.kodi.constants import BASE_FANART_URL
 
 def execute_api(namespace, api):
 	try:
@@ -35,7 +35,7 @@ def execute_api(namespace, api):
 			from commoncore import trakt
 			namespace = locals()
 		return getattr(namespace[api['name']], api['method'])(*args, **kwargs)
-	except Exception, e:
+	except Exception as e:
 		import traceback
 		traceback.print_exc()
 		kodi.handel_error("API Error", "Invalid API or Method")

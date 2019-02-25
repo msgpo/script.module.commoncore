@@ -17,24 +17,32 @@
 import time
 import json
 import random
-import urllib
 import hashlib
 import zlib
 import requests
 import traceback
 from sqlite3 import dbapi2 as database
 from commoncore import kodi
-from commoncore.enum import enum
 from commoncore.filelock import FileLock
-from commoncore.BeautifulSoup import BeautifulSoup
+from commoncore.bs4 import BeautifulSoup
 from commoncore import dom_parser
 	
 vfs = kodi.vfs
 CACHE = vfs.join(kodi.get_profile(), 'API_CACHE')
 if not vfs.exists(CACHE): vfs.mkdir(CACHE, True)
 
-TYPES = enum(TEXT=unicode, STR=type(''), UTF8=type(u''), DICT=type({}), RESPONSE=requests.models.Response)
-EXPIRE_TIMES = enum(FLUSH=-2, NEVER=-1, FIFTEENMIN=.25, THIRTYMIN=.5, HOUR=1, FOURHOURS=4, EIGHTHOURS=8, TWELVEHOURS=12, DAY=24, THREEDAYS=72, WEEK=168)
+try:
+	from urllib.parse import urlencode
+except ImportError:
+	from urllib import urlencode
+
+try:
+	str_type = unicode
+except:
+	str_type = str
+
+TYPES = kodi.enum(TEXT=str_type, STR=type(''), UTF8=type(u''), DICT=type({}), RESPONSE=requests.models.Response)
+EXPIRE_TIMES = kodi.enum(FLUSH=-2, NEVER=-1, FIFTEENMIN=.25, THIRTYMIN=.5, HOUR=1, FOURHOURS=4, EIGHTHOURS=8, TWELVEHOURS=12, DAY=24, THREEDAYS=72, WEEK=168)
 
 class baseException(Exception):
 	pass
@@ -65,7 +73,7 @@ class BASE_API():
 	
 	def generate_user_agent(self):
 		BR_VERS = [
-			['%s.0' % i for i in xrange(18, 43)],
+			['%s.0' % i for i in range(18, 43)],
 			['41.0.2228.0', '41.0.2227.1', '41.0.2227.0', '41.0.2226.0', '40.0.2214.93', '37.0.2062.124'],
 			['11.0'],
 			['11.0']
@@ -97,7 +105,7 @@ class BASE_API():
 		else:
 			url = uri
 		if query is not None:
-			url += '?' + urllib.urlencode(query)
+			url += '?' + urlencode(query)
 		return url
 	
 	def authorize(self):

@@ -30,7 +30,7 @@ def get_setting(k, addon_id=None):
 		return xbmcaddon.Addon(addon_id).getSetting(k)
 
 def set_setting(k, v, addon_id=None):
-	if not isinstance(v, basestring): v = str(v)
+	if not isinstance(v, str): v = str(v)
 	if addon_id is None:
 		return __set_setting(k, v)
 	else:
@@ -46,7 +46,8 @@ except:
 	PLUGIN_URL = 'plugin://%s' % sys.argv[0]
 
 PLATFORM = sys.platform
-ARTWORK = vfs.join(__addon.getAddonInfo('path'), 'resources/artwork')	
+ARTWORK = vfs.join(__addon.getAddonInfo('path'), 'resources/artwork')
+BASE_FANART_URL = ''
 	
 DEFAULT_VIEWS = enum(
 	DEFAULT= 550, 
