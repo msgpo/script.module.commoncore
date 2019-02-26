@@ -27,6 +27,9 @@ from xml.etree import ElementTree
 root = '/'
 debug = False
 
+PY2 = sys.version_info[0] == 2  #: ``True`` for Python 2
+PY3 = sys.version_info[0] == 3  #: ``True`` for Python 3
+
 def _resolve_path(path):
 	return path.replace('/', os.sep)	
 
@@ -75,6 +78,8 @@ def write_file(path, content, mode='w', json=False):
 			file = _open(path, 'wb')
 		else:
 			file = _open(path, 'w')
+		if PY3 and type(content) is not str:
+			content = str(content)
 		file.write(content)
 		file.close()
 		return True
@@ -253,3 +258,4 @@ def join(path, filename, preserve=False):
 	return translatedpath
 
 open = _open
+

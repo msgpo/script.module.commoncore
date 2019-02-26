@@ -180,7 +180,8 @@ class BASE_API():
 class CACHABLE_API(BASE_API):
 	
 	def get_cached_response(self, url, cache_limit):
-		cache_hash = hashlib.md5(str(url)).hexdigest()
+		
+		cache_hash = hashlib.md5(kodi.stringify(url)).hexdigest()
 		cache_file = vfs.join(CACHE, cache_hash)
 		if vfs.exists(cache_file):
 			temp = vfs.read_file(cache_file + '.ts')
@@ -199,10 +200,12 @@ class CACHABLE_API(BASE_API):
 		
 	def cache_response(self, url, response, cache_limit):
 		if response and cache_limit:
-			cache_hash = hashlib.md5(str(url)).hexdigest()
+			cache_hash = hashlib.md5(kodi.stringify(url)).hexdigest()
 			cache_file = vfs.join(CACHE, cache_hash)
-			vfs.write_file(cache_file, zlib.compress(response))
-			vfs.write_file(cache_file+'.ts', str(cache_limit))
+			response = kodi.bytefy(response)
+			compressed = zlib.compress(response)
+			vfs.write_file(cache_file, compressed)
+			vfs.write_file(cache_file+'.ts', cache_limit)
 	
 	def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None, encode_data=True, cache_limit=0):
 		query = self.prepair_query(query)
