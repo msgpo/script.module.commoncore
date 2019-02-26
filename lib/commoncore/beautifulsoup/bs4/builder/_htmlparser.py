@@ -34,16 +34,16 @@ CONSTRUCTOR_STRICT_IS_DEPRECATED = major == 3 and minor == 3
 CONSTRUCTOR_TAKES_CONVERT_CHARREFS = major == 3 and minor >= 4
 
 
-from commoncore.bs4.element import (
+from commoncore.beautifulsoup.bs4.element import (
     CData,
     Comment,
     Declaration,
     Doctype,
     ProcessingInstruction,
     )
-from commoncore.bs4.dammit import EntitySubstitution, UnicodeDammit
+from commoncore.beautifulsoup.bs4.dammit import EntitySubstitution, UnicodeDammit
 
-from commoncore.bs4.builder import (
+from commoncore.beautifulsoup.bs4.builder import (
     HTML,
     HTMLTreeBuilder,
     STRICT,

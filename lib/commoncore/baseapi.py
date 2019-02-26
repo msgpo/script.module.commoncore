@@ -24,8 +24,8 @@ import traceback
 from sqlite3 import dbapi2 as database
 from commoncore import kodi
 from commoncore.filelock import FileLock
-from commoncore.bs4 import BeautifulSoup
 from commoncore import dom_parser
+from commoncore.beautifulsoup import BeautifulSoup
 	
 vfs = kodi.vfs
 CACHE = vfs.join(kodi.get_profile(), 'API_CACHE')

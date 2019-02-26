@@ -22,7 +22,7 @@ from .logger import log
 try:
 	from urllib.parse import parse_qs
 except ImportError:
-	from urlparse.urlparse import parse_qs
+	from urlparse import parse_qs
 
 __dispatcher = {}
 __args = {}

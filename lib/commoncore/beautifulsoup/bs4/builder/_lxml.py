@@ -14,14 +14,14 @@ except ImportError as e:
 from io import BytesIO
 from io import StringIO
 from lxml import etree
-from commoncore.bs4.element import (
+from commoncore.beautifulsoup.bs4.element import (
     Comment,
     Doctype,
     NamespacedAttribute,
     ProcessingInstruction,
     XMLProcessingInstruction,
 )
-from commoncore.bs4.builder import (
+from commoncore.beautifulsoup.bs4.builder import (
     FAST,
     HTML,
     HTMLTreeBuilder,
@@ -29,7 +29,7 @@ from commoncore.bs4.builder import (
     ParserRejectedMarkup,
     TreeBuilder,
     XML)
-from commoncore.bs4.dammit import EncodingDetector
+from commoncore.beautifulsoup.bs4.dammit import EncodingDetector
 
 LXML = 'lxml'
 

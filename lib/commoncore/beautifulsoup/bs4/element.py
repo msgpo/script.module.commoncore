@@ -16,7 +16,7 @@ except ImportError as e:
         'The soupsieve package is not installed. CSS selectors cannot be used.'
     )
 
-from commoncore.bs4.dammit import EntitySubstitution
+from commoncore.beautifulsoup.bs4.dammit import EntitySubstitution
 
 DEFAULT_OUTPUT_ENCODING = "utf-8"
 PY3K = (sys.version_info[0] > 2)
@@ -371,7 +371,7 @@ class PageElement(object):
             and not isinstance(new_child, NavigableString)):
             new_child = NavigableString(new_child)
 
-        from commoncore.bs4 import BeautifulSoup
+        from commoncore.beautifulsoup.bs4 import BeautifulSoup
         if isinstance(new_child, BeautifulSoup):
             # We don't want to end up with a situation where one BeautifulSoup
             # object contains another. Insert the children one at a time.
