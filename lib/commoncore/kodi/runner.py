@@ -18,6 +18,7 @@
 import sys
 import json
 from .addon import get_setting, set_property, open_settings, get_name, get_id
+from .ui import handel_error
 from .logger import log
 try:
 	from urllib.parse import parse_qs
@@ -77,6 +78,30 @@ def register(mode):
 
 def first_run():
 	pass
+
+def map_directory(items, args=(), kwargs={}):
+	def decorator(func):
+		map(func, items)
+	return decorator
+
+def execute_api(namespace, api):
+	try:
+		if 'args' not in api or api['args'] is None: args = ()
+		else: args = list(api['args'])
+		if 'kwargs' not in api or api['kwargs'] is None: kwargs = {}
+		else: kwargs = api['kwargs']
+		if api['name'] == 'premiumize':
+			from commoncore import premiumize
+			namespace = locals()
+		elif api['name'] == 'trakt':
+			from commoncore import trakt
+			namespace = locals()
+		return getattr(namespace[api['name']], api['method'])(*args, **kwargs)
+	except Exception as e:
+		import traceback
+		traceback.print_exc()
+		handel_error("API Error", "Invalid API or Method")
+		raise e("Invalid API or Method")
 
 def run():
 	if args['mode'] == 'void': return

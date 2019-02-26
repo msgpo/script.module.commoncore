@@ -20,5 +20,5 @@ from xbmc import log as __log
 from xbmc import LOGDEBUG, LOGERROR, LOGFATAL, LOGINFO, LOGNONE, LOGNOTICE, LOGSEVERE, LOGWARNING
 
 def log(msg, level=LOGNOTICE):
-	msg = strings.py2_encode(strings.stringify(msg))
+	msg = strings.stringify(msg)
 	__log("%s v%s: %s" % (get_name(), get_version(), msg), level)
