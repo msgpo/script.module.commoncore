@@ -14,9 +14,12 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *'''
-
+from __future__ import unicode_literals
+import sys
 import importlib
-__all__ = ['addon', 'constants', 'enum', 'formating', 'logger', 'playback', 'runner', 'ui', 'strings', 'vfs']
+
+
+__all__ = ['addon', 'constants', 'enum', 'files', 'formating', 'logger', 'playback', 'runner', 'ui', 'strings', 'vfs']
 for name in __all__:
 	""" loop through each module in __all__
 	    import them serially and copy their contents to globals
@@ -27,3 +30,6 @@ for name in __all__:
 	else:
 		names = [x for x in mod.__dict__ if not x.startswith("_")]
 	globals().update({k: getattr(mod, k) for k in names})
+
+def exit():
+	sys.exit()

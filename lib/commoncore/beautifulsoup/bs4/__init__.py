@@ -83,7 +83,7 @@ class BeautifulSoup(Tag):
 
     NO_PARSER_SPECIFIED_WARNING = "No parser was explicitly specified, so I'm using the best available %(markup_type)s parser for this system (\"%(parser)s\"). This usually isn't a problem, but if you run this code on another system, or in a different virtual environment, it may use a different parser and behave differently.\n\nThe code that caused this warning is on line %(line_number)s of the file %(filename)s. To get rid of this warning, pass the additional argument 'features=\"%(parser)s\"' to the BeautifulSoup constructor.\n"
 
-    def __init__(self, markup="", features=None, builder=None,
+    def __init__(self, markup="", features="html.parser", builder=None,
                  parse_only=None, from_encoding=None, exclude_encodings=None,
                  **kwargs):
         """Constructor.

@@ -91,7 +91,7 @@ def dialog_context(options):
 	else: 
 		return None
 
-def dialog_browser(heading, type=BROWSER_TYPES.DIRECTORY, shares="", mask="", thumbs=False, force_folder=True, default="", multiple=False):
+def dialog_browser(heading, type=BROWSER_TYPES.DIRECTORY, shares="", mask="", thumbs=False, force_folder=False, default="", multiple=False):
 	if shares not in ["", "programs", "video", "pictures", "files", "games", "local"]: shares = ""
 	return xbmcgui.Dialog().browse(type, heading, shares, mask, thumbs, force_folder, default, multiple)
 

@@ -17,3 +17,11 @@ def bytefy(obj, encoding='utf8'):
 	if PY3 and isinstance(obj, str):
 		obj = obj.encode(encoding)
 	return obj
+
+def str_decode(obj, encoding='utf8'):
+	if PY3:
+		import xbmc
+		xbmc.log(str(type(obj)), xbmc.LOGNOTICE)
+		obj = str(encoding)
+	return obj
+	

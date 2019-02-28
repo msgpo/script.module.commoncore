@@ -39,11 +39,6 @@ show_settings = __addon.openSettings
 sleep = xbmc.sleep
 get_condition_visiblity = xbmc.getCondVisibility
 
-#try:
-#	HANDLE_ID = int(sys.argv[1])
-#except:
-#	HANDLE_ID = -1
-
 def get_kodi_version():
 	full_version_info = xbmc.getInfoLabel('System.BuildVersion')
 	return int(full_version_info.split(".")[0])
@@ -53,6 +48,10 @@ def get_addon(addon_id):
 
 def has_addon(addon_id):
 	return get_condition_visiblity("System.HasAddon(%s)" % addon_id)==1
+
+def install_addon(addon_id):
+	cmd = "RunPlugin(plugin://%s)" % addon_id
+	run_command(cmd)
 
 def get_window(id=10000):
 	return xbmcgui.Window(id)
@@ -118,11 +117,22 @@ def kodi_json_request(method, params, id=1):
 	response = json.loads(xbmc.executeJSONRPC(jsonrpc))
 	return response
 
+def build_plugin_url(queries, addon_id=None):
+	return get_plugin_url(queries, addon_id)
+
 def run_command(cmd):
 	return xbmc.executebuiltin(cmd)
 
-def build_plugin_url(queries, addon_id=None):
-	return get_plugin_url(queries, addon_id)
+def refresh(plugin_url=None):
+	query = get_property('search.query')
+	if query:
+		set_property('search.query.refesh', query)
+		clear_property('search.query')
+		
+	if plugin_url is None:
+		run_command("Container.Refresh")
+	else:
+		run_command("Container.Refresh(%s)" % plugin_url)
 
 def execute_url(plugin_url):
 	cmd = 'XBMC.RunPlugin(%s)' % (plugin_url) 
@@ -142,10 +152,6 @@ def navigate_to(query):
 
 def go_to_url(plugin_url):
 	cmd = "XBMC.Container.Update(%s)" % plugin_url
-	xbmc.executebuiltin(cmd)
-
-def install_addon(addon_id):
-	cmd = "RunPlugin(plugin://%s)" % addon_id
 	run_command(cmd)
 
 def play_url(plugin_url, isFolder=False):
@@ -154,6 +160,8 @@ def play_url(plugin_url, isFolder=False):
 	else:
 		cmd = 'XBMC.PlayMedia(%s)' % (plugin_url)
 	run_command(cmd)
+
+play_media = play_url
 
 def get_current_view():
 	window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
@@ -178,10 +186,13 @@ def set_view(view_id, content=None):
 def _eod(cache_to_disc=True):
 	xbmcplugin.endOfDirectory(HANDLE_ID, cacheToDisc=cache_to_disc)
 
-def eod(view_id=None, content=None, clear_search=False):
-
-	if view_id in [DEFAULT_VIEWS.SHOWS, DEFAULT_VIEWS.SEASONS, DEFAULT_VIEWS.EPISODES]:
+def eod(view_id=None, content=None):
+	if view_id in [DEFAULT_VIEWS.SHOWS, DEFAULT_VIEWS.SEASONS]:
 		content = "tvshows"
+	elif view_id == DEFAULT_VIEWS.EPISODES:
+		content = 'episodes'
+	elif view_id == DEFAULT_VIEWS.GAMES:
+		content = 'games'
 	elif view_id == DEFAULT_VIEWS.MOVIES:
 		content = 'movies'
 	if view_id is not None:

@@ -48,15 +48,17 @@ except:
 PLATFORM = sys.platform
 ARTWORK = vfs.join(__addon.getAddonInfo('path'), 'resources/artwork')
 BASE_FANART_URL = ''
-	
+DEFAULT_VIEW = 550	
 DEFAULT_VIEWS = enum(
-	DEFAULT= 550, 
-	LIST= int(get_setting('default_list_view')) if get_setting('default_list_view') else 550, 
-	MOVIES= int(get_setting('default_movie_view')) if get_setting('default_movie_view') else 550, 
-	SHOWS= int(get_setting('default_show_view')) if get_setting('default_show_view') else 550, 
-	SEASONS= int(get_setting('default_season_view')) if get_setting('default_season_view') else 550, 
-	EPISODES= int(get_setting('default_episode_view')) if get_setting('default_episode_view') else 550,
-	STREAMS= int(get_setting('default_stream_view')) if get_setting('default_stream_view') else 550, 
+	DEFAULT= DEFAULT_VIEW, 
+	LIST= int(get_setting('default_list_view')) if get_setting('default_list_view') else DEFAULT_VIEW, 
+	FOLDER= int(get_setting('default_folder_view')) if get_setting('default_folder_view') else DEFAULT_VIEW, 
+	MOVIES= int(get_setting('default_movie_view')) if get_setting('default_movie_view') else DEFAULT_VIEW, 
+	SHOWS= int(get_setting('default_show_view')) if get_setting('default_show_view') else DEFAULT_VIEW, 
+	SEASONS= int(get_setting('default_season_view')) if get_setting('default_season_view') else DEFAULT_VIEW, 
+	EPISODES= int(get_setting('default_episode_view')) if get_setting('default_episode_view') else DEFAULT_VIEW,
+	STREAMS= int(get_setting('default_stream_view')) if get_setting('default_stream_view') else DEFAULT_VIEW, 
+	GAMES= int(get_setting('default_game_view')) if get_setting('default_game_view') else DEFAULT_VIEW, 
 )
 
 BROWSER_TYPES = enum(DIRECTORY=0, FILE=1, IMAGE=2, WRITEABLEDIRECTORY=3)

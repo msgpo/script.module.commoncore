@@ -53,7 +53,7 @@ def read_file(path, soup=False, json=False, mode=''):
 		content=file.read()
 		file.close()
 		if soup:
-			from commoncore.bs4 import BeautifulSoup, Tag, NavigableString
+			from commoncore.beautifulsoup import BeautifulSoup
 			soup = BeautifulSoup(content)
 			return soup
 		elif json:
